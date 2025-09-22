@@ -1,0 +1,625 @@
+{
+	"info": {
+		"_postman_id": "db081f8d-16dc-4f99-904e-fc28ff5a2646",
+		"name": "ZELLO MIND",
+		"description": "Documentação\n\n[https://smartdocs-api-hlg.zello.space/api/v1/docs](https://smartdocs-api-hlg.zello.space/api/v1/docs)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14769032"
+	},
+	"item": [
+		{
+			"name": "SmartQuery",
+			"item": [
+				{
+					"name": "Config",
+					"item": [
+						{
+							"name": "Cadastrar Conexão",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Banco Principal ProgressoGOV\",\r\n    \"type\": \"PostgreSQL\",\r\n    \"host\": \"progressogov.crdxjk6czgtn.us-east-1.rds.amazonaws.com\",\r\n    \"port\": 5432,\r\n    \"database\": \"progressogov\",\r\n    \"schema\": \"public\",\r\n    \"auth\": {\r\n        \"username\": \"usr_progressogov\",\r\n        \"password\": \"deiidhs988ans\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/connections",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Atualizar Conexão",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Banco Principal ProgressoGOV\",\r\n    \"type\": \"PostgreSQL\",\r\n    \"host\": \"progressogov.crdxjk6czgtn.us-east-1.rds.amazonaws.com\",\r\n    \"port\": 5432,\r\n    \"database\": \"progressogov\",\r\n    \"schema\": \"public\",\r\n    \"auth\": {\r\n        \"username\": \"usr_progressogov\",\r\n        \"password\": \"deiidhs988ans\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/connections/688bb86454fc7f77ebd401b2",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"connections",
+										"688bb86454fc7f77ebd401b2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recuperar Conexão",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Banco Principal ProgressoGOV\",\r\n    \"type\": \"PostgreSQL\",\r\n    \"host\": \"progressogov.crdxjk6czgtn.us-east-1.rds.amazonaws.com\",\r\n    \"port\": 5432,\r\n    \"database\": \"progressogov\",\r\n    \"schema\": \"public\",\r\n    \"auth\": {\r\n        \"username\": \"usr_progressogov\",\r\n        \"password\": \"deiidhs988ans\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/connections/689c9877df1588fbb8dab461",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"connections",
+										"689c9877df1588fbb8dab461"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Conexões",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/connections",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Tabelas da Conexão",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/metadata/689c9877df1588fbb8dab461/tables",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"metadata",
+										"689c9877df1588fbb8dab461",
+										"tables"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Listar Colunas da Tabela",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/metadata/689c9877df1588fbb8dab461/tables/vw_projetos_pbi/columns",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"metadata",
+										"689c9877df1588fbb8dab461",
+										"tables",
+										"vw_projetos_pbi",
+										"columns"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Incluir contexto para uma Tabela",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \r\n\t  \"name\": \"origem_projeto\",\r\n\t  \"tableDescription\": \"Origens vinculadas aos projetos\",\r\n\t  \"fields\": [\r\n\t\t{\r\n\t\t  \"name\": \"id\",\r\n\t\t  \"description\": \"Identificador único da combinação origem - projeto\",\r\n\t\t  \"type\": \"integer\"\r\n\t\t},\r\n\t\t{\r\n\t\t  \"name\": \"projeto_id\",\r\n\t\t  \"description\": \"Identificador único do projeto que tem a origem mencionada no campo origem_id\",\r\n\t\t  \"type\": \"integer\"\r\n\t\t},\r\n\t\t{\r\n\t\t  \"name\": \"origem_id\",\r\n\t\t  \"description\": \"Identificador único da origem do projeto mencionado no campo projeto_id\",\r\n\t\t  \"type\": \"integer\"\r\n\t\t}\r\n\t  ],\r\n\t  \"businessRules\": [\r\n\t\t\"Um projeto pode ter várias origens. Para cada origem tem um registro nesta tabela.\"\r\n\t\t]\r\n\t}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/metadata/689f7d394cb80c8b10701e99/tables/origem_projeto/context",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"metadata",
+										"689f7d394cb80c8b10701e99",
+										"tables",
+										"origem_projeto",
+										"context"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Atualizar contexto para uma Tabela",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tableDescription\": \"View com os principais projetos do Estado do Amapá 2\",\r\n    \"fields\": [\r\n        {\r\n            \"name\": \"id\",\r\n            \"description\": \"Identificador único do projeto\",\r\n            \"type\": \"integer\"\r\n        },\r\n        {\r\n            \"name\": \"projeto\",\r\n            \"description\": \"Nome do projeto\",\r\n            \"type\": \"integer\"\r\n        },\r\n        {\r\n            \"name\": \"eixo\",\r\n            \"description\": \"Área de atuação do projeto, dentro das atribuições do governo\",\r\n            \"type\": \"string\",\r\n            \"examples\": [\r\n                \"Educação\",\r\n                \"Saúde\",\r\n                \"Cultura\"\r\n            ]\r\n        },\r\n        {\r\n            \"name\": \"ug\",\r\n            \"description\": \"Unidade Gestora, órgão que está responsável pela execução do projeto\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"prioridade\",\r\n            \"description\": \"Prioridade atribuído ao projeto\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"ponto_focal\",\r\n            \"description\": \"Pessoa que está na frente do projeto dentro da Unidade Gestora\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"linha_est\",\r\n            \"description\": \"Linha estratégica a qual o projeto pertence\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"estrategia\",\r\n            \"description\": \"Estratégia a qual o projeto pertence\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"acao_estr\",\r\n            \"description\": \"Ação estratégica a qual o projeto pertence\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"etapa\",\r\n            \"description\": \"Etapa na qual o projeto se encontra\",\r\n            \"type\": \"string\",\r\n            \"examples\": [\r\n                \"01. Demanda\",\r\n                \"07. Licitação\",\r\n                \"12. Obra Concluída\"\r\n            ]\r\n        },\r\n        {\r\n            \"name\": \"status\",\r\n            \"description\": \"Status atual do projeto\",\r\n            \"type\": \"string\",\r\n            \"examples\": [\r\n                \"Realizado\",\r\n                \"Em progresso\",\r\n                \"Não iniciado\"\r\n            ]\r\n        },\r\n        {\r\n            \"name\": \"prazo\",\r\n            \"description\": \"Data prevista de entrega final do projeto\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"valor\",\r\n            \"description\": \"Valor total previsto para execução do projeto\",\r\n            \"type\": \"float\"\r\n        },\r\n        {\r\n            \"name\": \"avanco\",\r\n            \"description\": \"Avanço do projeto em percentual do total do projeto\",\r\n            \"type\": \"integer\"\r\n        },\r\n        {\r\n            \"name\": \"orgao\",\r\n            \"description\": \"Órgão aportando os recursos para execução do projeto\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"categoria\",\r\n            \"description\": \"Campo indicando a origem do projeto, na migração de outras ferramentas\",\r\n            \"type\": \"string\",\r\n            \"examples\": [\r\n                \"Plano estratégico\",\r\n                \"Obra\"\r\n            ]\r\n        },\r\n        {\r\n            \"name\": \"sigla\",\r\n            \"description\": \"Sigla da Unidade Gestora responsável pela execução do projeto\",\r\n            \"type\": \"string\"\r\n        }\r\n    ],\r\n    \"businessRules\": [\r\n        \"Um projeto pertence a uma ação estratégica, que por sua vez faz parte de uma estratégia. Uma estratégia pertence a uma linha estratégica. Os três níveis estratégicos são obrigatórios para cada projeto estratégico.\",\r\n        \"Um projeto pode pertencer a um programa, mas nem todo projeto está dentro de um programa. O programa obrigatoriamente faz parte de uma ação estratégica.\",\r\n        \"Projetos estratégicos tem por padrão a etapa 14. Projeto Estratégico como não tinha o campo etapa na ferramenta de origem, mas ao longo do tempo a etapa deve ser atualizada.\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/contexts/688bc11a32d012e5daf8244b",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"contexts",
+										"688bc11a32d012e5daf8244b"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recuperar contexto para uma Tabela",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/config/contexts/688bc11a32d012e5daf8244b",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"config",
+										"contexts",
+										"688bc11a32d012e5daf8244b"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Functions",
+					"item": [
+						{
+							"name": "Gerar Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"question\": \"Quantos projetos estão com o status ativo?\",\r\n    \"connectionId\": \"689f7d394cb80c8b10701e99\",\r\n    \"tables\": [\"vw_projetos_pbi\", \"localizacao\", \"origem\", \"origem_projeto\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/functions/query/interpret",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"functions",
+										"query",
+										"interpret"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Executar Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "zello_mind_key",
+										"value": "{{zello_mind_key}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"question\": \"Quantos projetos estão com o status ativo?\",\r\n    \"connectionId\": \"689c9877df1588fbb8dab461\",\r\n    \"tables\": [\"vw_projetos_pbi\", \"localizacao\", \"origem\", \"origem_projeto\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}/api/v1/smart-query/functions/query/execute",
+									"host": [
+										"{{host}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"smart-query",
+										"functions",
+										"query",
+										"execute"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "SmartDocs",
+			"item": [
+				{
+					"name": "01 - Cadastrar métrica/prompt",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"model\": \"openrouter_mistralai/mistral-small-3.2-24b-instruct\",\r\n  \"prompt\": \"Encontre no contexto um texto que represente o título de um documento\",\r\n  \"output_type\": \"\",\r\n  \"status\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/classification/metric",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"classification",
+								"metric"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "02 - Cadastrar metric-group/ metricas do arquivo",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"licencas_ambientais_v2\",\r\n  \"description\": \"Grupo para validar o documento de licenças ambientais\",\r\n  \"metrics\": [\r\n    {\r\n      \"metric_id\": \"68793ef1da8bbbf2b345c176\",\r\n      \"score\": 10,\r\n      \"unique\": true,\r\n      \"additional_score\": 0\r\n    },\r\n    {\r\n      \"metric_id\": \"68793f71da8bbbf2b345c177\",\r\n      \"score\": 10,\r\n      \"unique\": false,\r\n      \"additional_score\": 10\r\n    },\r\n    {\r\n      \"metric_id\": \"68794017da8bbbf2b345c178\",\r\n      \"score\": 10,\r\n      \"unique\": false,\r\n      \"additional_score\": 10\r\n    },\r\n    {\r\n      \"metric_id\": \"68794045da8bbbf2b345c179\",\r\n      \"score\": 10,\r\n      \"unique\": false,\r\n      \"additional_score\": 10\r\n    },\r\n    {\r\n      \"metric_id\": \"687940f9da8bbbf2b345c17a\",\r\n      \"score\": 10,\r\n      \"unique\": false,\r\n      \"additional_score\": 10\r\n    }\r\n  ],\r\n  \"status\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/classification/metric-group",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"classification",
+								"metric-group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "03 - Upload de arquivo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/asus/Downloads/12 - B - licenças_ambientais.pdf"
+								},
+								{
+									"key": "metric_groups",
+									"value": "687942a9da8bbbf2b345c17b",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/files/upload",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"files",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "04 - Resultado Métricas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/classification/file/687942e4da8bbbf2b345c17d/result",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"classification",
+								"file",
+								"687942e4da8bbbf2b345c17d",
+								"result"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "05 - Listar Métricas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/classification/file/687942e4da8bbbf2b345c17d/metrics",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"classification",
+								"file",
+								"687942e4da8bbbf2b345c17d",
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "06 - Listar Métricas por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/classification/file/687942e4da8bbbf2b345c17d/metrics/68794017da8bbbf2b345c178",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"classification",
+								"file",
+								"687942e4da8bbbf2b345c17d",
+								"metrics",
+								"68794017da8bbbf2b345c178"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LLM",
+			"item": [
+				{
+					"name": "Chat Completions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "zello_mind_key",
+								"value": "{{zello_mind_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"Você é um assistente útil.\"\r\n        },\r\n        {\r\n            \"role\": \"user\", \r\n            \"content\": \"Explique o que é Machine Learning de forma simples.\"\r\n        }\r\n    ],\r\n    \"temperature\": 0.7\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/chat/completions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"chat",
+								"completions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
