@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Repositório - HU Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+            color: #2D2D2D;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6F00 0%, #E65100 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(255, 111, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .nav-breadcrumb {
+            margin-bottom: 20px;
+        }
+
+        .nav-breadcrumb a {
+            color: #FF6F00;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #FF6F00;
+        }
+
+        .stat-card h3 {
+            color: #2D2D2D;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #FF6F00;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .actions-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .actions-section h2 {
+            color: #2D2D2D;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #FF6F00 0%, #E65100 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 111, 0, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2D2D2D 0%, #1a1a1a 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(45, 45, 45, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background-color: #4CAF50; }
+        .status-warning { background-color: #FF9800; }
+        .status-error { background-color: #F44336; }
+        .status-info { background-color: #2196F3; }
+
+        .files-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .files-section h2 {
+            color: #2D2D2D;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .files-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF6F00 0%, #E65100 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #2D2D2D;
+            margin-bottom: 5px;
+        }
+
+        .file-path {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .file-status {
+            margin-left: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FF6F00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6F00 0%, #E65100 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 111, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Monitor de Repositório</h1>
+            <p>Gerencie e monitore arquivos de transcrição automaticamente</p>
+        </div>
+
+        <div class="nav-breadcrumb">
+            <a href="/">← Voltar para HU Automation</a>
+        </div>
+
+        <div id="alerts"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Arquivos no Repositório</h3>
+                <div class="stat-value" id="repo-files">-</div>
+                <div class="stat-label">Total encontrados</div>
+            </div>
+            <div class="stat-card">
+                <h3>Jobs no Banco</h3>
+                <div class="stat-value" id="total-jobs">-</div>
+                <div class="stat-label">Total registrados</div>
+            </div>
+            <div class="stat-card">
+                <h3>Descobertos</h3>
+                <div class="stat-value" id="discovered-jobs">-</div>
+                <div class="stat-label">Aguardando processamento</div>
+            </div>
+            <div class="stat-card">
+                <h3>Processados</h3>
+                <div class="stat-value" id="processed-jobs">-</div>
+                <div class="stat-label">Concluídos com sucesso</div>
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <h2>🎯 Ações</h2>
+            <button class="btn" onclick="collectEmails()" id="scan-btn">
+                📥 Coletar E-mails
+            </button>
+            <button class="btn btn-secondary" onclick="refreshStats()" id="refresh-btn">
+                📊 Atualizar Estatísticas
+            </button>
+            <button class="btn btn-secondary" onclick="loadRecentJobs()" id="jobs-btn">
+                📋 Ver Jobs Recentes
+            </button>
+            <button class="btn btn-secondary" onclick="testConnectivity()" id="conn-btn">
+                🌐 Testar Conectividade LLM
+            </button>
+        </div>
+
+        <div class="files-section">
+            <h2>📁 Arquivos Descobertos</h2>
+            <div id="files-container">
+                <div class="loading">Carregando arquivos...</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshAll()" title="Atualizar tudo">
+        🔄
+    </button>
+
+    <script>
+        let currentFiles = [];
+
+        // Carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStats();
+            loadRecentJobs();
+        });
+
+        function showAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertsContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function setLoading(buttonId, loading = true) {
+            const btn = document.getElementById(buttonId);
+            if (loading) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Processando...';
+            } else {
+                btn.disabled = false;
+                btn.textContent = btn.getAttribute('data-original-text') || btn.textContent;
+            }
+        }
+
+        async function collectEmails() {
+            const btn = document.getElementById('scan-btn');
+            btn.setAttribute('data-original-text', btn.textContent);
+            setLoading('scan-btn', true);
+
+            try {
+                const response = await fetch('/api/collect-emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ max: 20 })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(`✅ Coleta concluída! ${data.created} novos jobs criados`, 'success');
+                    refreshStats();
+                    loadRecentJobs();
+                } else {
+                    showAlert(`❌ Erro na coleta: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+            } finally {
+                setLoading('scan-btn', false);
+            }
+        }
+
+        async function refreshStats() {
+            try {
+                const response = await fetch('/api/repository-stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('repo-files').textContent = data.repository.files_found || 0;
+                    document.getElementById('total-jobs').textContent = data.database.total_jobs || 0;
+                    document.getElementById('discovered-jobs').textContent = data.database.discovered || 0;
+                    document.getElementById('processed-jobs').textContent = data.database.processed || 0;
+                } else {
+                    showAlert(`❌ Erro ao carregar estatísticas: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadRecentJobs() {
+            try {
+                const response = await fetch('/api/recent-jobs?limit=20');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayJobs(data.jobs);
+                } else {
+                    showAlert(`❌ Erro ao carregar jobs: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+            }
+        }
+
+        function displayFiles(files) {
+            const container = document.getElementById('files-container');
+            
+            if (files.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhum arquivo descoberto recentemente</div>';
+                return;
+            }
+
+            const filesHtml = files.map(file => {
+                const fileInfo = file.file_info;
+                const job = file.job;
+                
+                return `
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">${fileInfo.name}</div>
+                            <div class="file-path">${fileInfo.relative_path}</div>
+                            <div class="file-meta">
+                                ${formatFileSize(fileInfo.size)} • 
+                                ${formatDate(fileInfo.created_at)} • 
+                                Hash: ${file.hash.substring(0, 8)}...
+                            </div>
+                        </div>
+                        <div class="file-status">
+                            <span class="status-indicator status-success"></span>
+                            <span>Descoberto</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = filesHtml;
+        }
+
+        function displayJobs(jobs) {
+            const container = document.getElementById('files-container');
+            
+            if (jobs.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhum job encontrado</div>';
+                return;
+            }
+
+            const jobsHtml = jobs.map(job => {
+                const statusClass = getStatusClass(job.status);
+                const statusText = getStatusText(job.status);
+                
+                return `
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">${job.filename}</div>
+                            <div class="file-path">${job.source_uri}</div>
+                            <div class="file-meta">
+                                Criado: ${formatDate(job.created_at)} • 
+                                Tentativas: ${job.attempts} • 
+                                Hash: ${job.source_hash.substring(0, 8)}...
+                            </div>
+                        </div>
+                        <div class="file-status">
+                            <span class="status-indicator ${statusClass}"></span>
+                            <span>${statusText}</span>
+                            ${job.status === 'discovered' ? `<button class="btn btn-secondary" style="margin-left:12px" onclick="processJob(${job.id}, this, 'auto')">▶ Processar</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = jobsHtml;
+        }
+
+        async function processJob(jobId, btnEl, provider = 'auto') {
+            const originalText = btnEl.textContent;
+            btnEl.disabled = true;
+            btnEl.textContent = '⏳ Processando...';
+            try {
+                const resp = await fetch(`/api/process-file/${jobId}?provider=${encodeURIComponent(provider)}`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.success) {
+                    showAlert('✅ Processamento concluído', 'success');
+                } else {
+                    showAlert(`❌ Falha no processamento: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                showAlert(`❌ Erro de conexão: ${e.message}`, 'error');
+            } finally {
+                btnEl.disabled = false;
+                btnEl.textContent = originalText;
+                // Atualiza UI
+                await refreshStats();
+                await loadRecentJobs();
+            }
+        }
+
+        function getStatusClass(status) {
+            const statusMap = {
+                'discovered': 'status-info',
+                'enqueued': 'status-warning',
+                'processing': 'status-warning',
+                'processed': 'status-success',
+                'failed': 'status-error',
+                'retried': 'status-warning'
+            };
+            return statusMap[status] || 'status-info';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'discovered': 'Descoberto',
+                'enqueued': 'Na Fila',
+                'processing': 'Processando',
+                'processed': 'Processado',
+                'failed': 'Falhou',
+                'retried': 'Reenviado'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('pt-BR');
+        }
+
+        function refreshAll() {
+            refreshStats();
+            loadRecentJobs();
+            showAlert('🔄 Dados atualizados!', 'info');
+        }
+
+        async function testConnectivity() {
+            const btn = document.getElementById('conn-btn');
+            const original = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Testando...';
+            try {
+                const resp = await fetch('/api/test-llm-connection');
+                const data = await resp.json();
+                if (data.success) {
+                    const z = data.results.zello;
+                    const o = data.results.openai;
+                    showAlert(`Zello: ${z.ok ? 'OK' : 'Falha'}${z.error ? ' - ' + z.error : ''} | OpenAI: ${o.ok ? 'OK' : 'Falha'}${o.error ? ' - ' + o.error : ''}`, data.success ? 'info' : 'error');
+                } else {
+                    showAlert('❌ Erro no teste de conectividade', 'error');
+                }
+            } catch (e) {
+                showAlert(`❌ Erro de conexão: ${e.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = original;
+            }
+        }
+    </script>
+</body>
+</html>

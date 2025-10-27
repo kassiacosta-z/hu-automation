@@ -49,6 +49,7 @@ class GenerationService:
                 }
             ]
             
+            # Usar provider diretamente (sem fallback para OpenAI)
             # Chamar a LLM
             response = self.llm_service.get_completion(provider, messages)
             
@@ -93,6 +94,7 @@ class GenerationService:
                 }
             ]
             
+            # Usar provider diretamente (sem fallback)
             # Chamar a LLM
             response = self.llm_service.get_completion(provider, messages)
             

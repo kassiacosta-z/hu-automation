@@ -1,49 +1,38 @@
-# HU Automation
+# 🚀 HU Automation 2.0
 
-<div align="center">
+Sistema de automação de Histórias de Usuário que transforma transcrições de reuniões em Histórias de Usuário estruturadas usando IA (Zello MIND).
 
-![HU Automation](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![Flask](https://img.shields.io/badge/Flask-2.3+-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+## 📋 Visão Geral
 
-**Sistema de automação para geração de Histórias de Usuário usando IA**
+O HU Automation 2.0 é uma aplicação web desenvolvida em Flask que processa transcrições (TXT, PDF, DOC, DOCX, MD) e gera Histórias de Usuário completas e estruturadas seguindo o padrão ProgressoGov.
 
-Transforme transcrições de reuniões e documentos de requisitos em Histórias de Usuário estruturadas e profissionais.
+### ✨ Funcionalidades
 
-[🚀 Começar](#-instalação) • [📖 Documentação](#-documentação) • [🤖 Demo](#-demo) • [📧 Contato](#-contato)
+- ✅ **Upload Manual**: Interface web para upload de arquivos
+- ✅ **Extração Automática**: Suporta múltiplos formatos (TXT, PDF, DOC, DOCX, MD)
+- ✅ **Geração com IA**: Usa Zello MIND para gerar HUs estruturadas
+- ✅ **Template ProgressoGov**: Formato completo com 10 seções obrigatórias
+- ✅ **Envio por E-mail**: Opção de envio automático por e-mail (HTML ou texto)
+- ✅ **Interface Moderna**: Design profissional e responsivo
+- ✅ **Barra de Progresso**: Feedback visual durante o processamento
+- ✅ **Histórico**: Banco de dados SQLite para rastreamento de jobs
 
-</div>
-
----
-
-## ✨ Características
-
-- 🤖 **Integração com IA**: Suporte para OpenAI GPT e Zello MIND
-- 📄 **Múltiplos Formatos**: Processa TXT, PDF, DOC, DOCX e MD
-- 📧 **Envio Automático**: Envia resultados por e-mail em HTML ou texto
-- 📊 **Validação Inteligente**: Sistema de auto-correção com feedback
-- 🎨 **Interface Moderna**: Design profissional e responsivo
-- ⚡ **Processamento Rápido**: Geração eficiente de Histórias de Usuário
-
-## 🚀 Instalação
-
-### Pré-requisitos
+## 🛠️ Pré-requisitos
 
 - Python 3.10 ou superior
-- pip (gerenciador de pacotes Python)
-- Conta OpenAI (opcional)
-- Conta Zello MIND (opcional)
-- Configuração de e-mail SMTP
+- Zello MIND API Key (ou OpenAI API Key como alternativa)
+- SMTP configurado para envio de e-mails (opcional)
 
-### 1. Clone o repositório
+## 📦 Instalação
+
+### 1. Clonar o Repositório
 
 ```bash
 git clone https://github.com/kassiacosta-z/hu-automation.git
 cd hu-automation
 ```
 
-### 2. Crie um ambiente virtual
+### 2. Criar Ambiente Virtual
 
 ```bash
 # Windows
@@ -55,248 +44,207 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instale as dependências
+### 3. Instalar Dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure as variáveis de ambiente
+### 4. Configurar Variáveis de Ambiente
+
+Copie o arquivo de exemplo e configure suas credenciais:
 
 ```bash
-# Copie o arquivo de exemplo
+# Windows
 copy env.example .env
 
-# Edite o arquivo .env com suas configurações
-notepad .env
+# Linux/Mac
+cp env.example .env
 ```
 
-### 5. Execute a aplicação
+Edite o arquivo `.env` com suas configurações:
+
+```env
+# Flask
+FLASK_HOST=127.0.0.1
+FLASK_PORT=5000
+FLASK_DEBUG=True
+
+# OpenAI API (opcional - apenas se quiser usar OpenAI)
+OPENAI_API_KEY=sk-proj-sua-chave-aqui
+
+# Zello MIND API
+ZELLO_API_KEY=sua-chave-zello-aqui
+ZELLO_BASE_URL=https://smartdocs-api-hlg.zello.space
+
+# Email (SMTP) - Opcional
+EMAIL_SMTP_SERVER=smtp.gmail.com
+EMAIL_SMTP_PORT=587
+EMAIL_USERNAME=seu-email@gmail.com
+EMAIL_PASSWORD=sua-senha-de-app
+EMAIL_FROM=seu-email@gmail.com
+
+# Database
+DATABASE_URL=sqlite:///app.db
+
+# Upload
+MAX_CONTENT_LENGTH=16777216
+UPLOAD_FOLDER=uploads
+```
+
+## 🚀 Como Usar
+
+### Executar a Aplicação
 
 ```bash
 python app.py
 ```
 
-Acesse `http://localhost:5000` no seu navegador.
+A aplicação estará disponível em: **http://127.0.0.1:5000/**
 
-## ⚙️ Configuração
+### Fluxo de Uso
 
-### Variáveis de Ambiente
+1. **Acessar a Interface**: Abra o navegador em http://127.0.0.1:5000/
+2. **Upload do Arquivo**: Clique ou arraste um arquivo (TXT, PDF, DOC, DOCX, MD)
+3. **Configurar Opções**:
+   - E-mail destinatário (opcional)
+   - Formato de saída (Preview, HTML, Texto)
+4. **Processar**: Clique em "Processar Documento"
+5. **Visualizar Resultado**: As HUs geradas aparecem na tela
+6. **E-mail**: Se configurado, um e-mail será enviado automaticamente
 
-Crie um arquivo `.env` baseado no `env.example`:
+## 📊 Formato das Histórias de Usuário
 
-```env
-# Configurações das LLMs
-OPENAI_API_KEY=sk-your-openai-api-key-here
-ZELLO_API_KEY=your-zello-api-key-here
-ZELLO_BASE_URL=https://smartdocs-api-hlg.zello.space
+Cada História de Usuário gerada contém:
 
-# Configurações de E-mail
-EMAIL_SMTP_SERVER=smtp.gmail.com
-EMAIL_SMTP_PORT=587
-EMAIL_USERNAME=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password-here
-EMAIL_FROM=your-email@gmail.com
-```
+1. **Nome da História**: Formato [Funcionalidade] – [Ação principal]
+2. **História de Usuário**: Formato "Como [tipo de usuário], quero [funcionalidade] para [benefício]"
+3. **Tipo**: Feature / Melhoria / Bug / Enabler
+4. **Critérios de Aceitação**: Numerados e verificáveis
+5. **Permissões e Acessos**: Leitor, Gestor, Alta gestão
+6. **Regras de Negócios**: Políticas e restrições
+7. **Requisitos Técnicos**: Integrações e arquitetura
+8. **Regras de Interface**: Comportamento de componentes
+9. **Campos e Componentes de UI**: Tabela Markdown
+10. **Cenários de Teste**: Formato BDD (Dado/Quando/Então)
 
-### Configuração de E-mail
-
-Para usar o Gmail:
-1. Ative a verificação em 2 etapas
-2. Gere uma senha de app
-3. Use a senha de app no campo `EMAIL_PASSWORD`
-
-## 📖 Documentação
-
-### Estrutura do Projeto
+## 🏗️ Estrutura do Projeto
 
 ```
 hu-automation/
-├── app.py                 # Aplicação Flask principal
-├── config.py             # Configurações e variáveis de ambiente
-├── requirements.txt      # Dependências Python
-├── env.example          # Exemplo de configuração
-├── .gitignore           # Arquivos ignorados pelo Git
-├── README.md            # Documentação principal
-├── services/            # Serviços de negócio
-│   ├── __init__.py
-│   ├── llm_service.py   # Integração com LLMs
-│   ├── file_service.py  # Processamento de arquivos
-│   ├── email_service.py # Envio de e-mails
-│   └── generation_service.py # Geração de HUs
-├── prompts/             # Prompts para IA
-│   └── user_story_prompts.py
-└── templates/           # Interface web
-    └── index.html
+├── app.py                      # Aplicação principal Flask
+├── config.py                   # Configurações e variáveis de ambiente
+├── database.py                 # Configuração do banco de dados
+├── requirements.txt            # Dependências Python
+├── .env.example                # Exemplo de variáveis de ambiente
+├── .env                        # Suas configurações (não versionar!)
+├── models/
+│   └── __init__.py            # Modelos SQLAlchemy
+├── services/
+│   ├── llm_service.py         # Integração com Zello MIND/OpenAI
+│   ├── email_service.py       # Envio de e-mails
+│   ├── file_service.py        # Processamento de arquivos
+│   ├── generation_service.py  # Geração e validação de HUs
+│   └── repository_monitor.py  # Monitoramento de repositório
+├── prompts/
+│   └── user_story_prompts.py  # Templates de prompts
+├── templates/
+│   ├── index.html             # Interface principal
+│   └── admin_monitor.html     # Painel administrativo
+└── static/
+    └── hu_automation_icon.png # Logo da aplicação
 ```
 
-### API Endpoints
+## 🔧 Configuração Avançada
 
-#### `GET /api/validate-config`
-Verifica o status das configurações.
+### Banco de Dados
 
-**Resposta:**
-```json
-{
-  "success": true,
-  "config_status": {
-    "openai_configured": true,
-    "zello_configured": true,
-    "email_configured": true
-  }
-}
-```
+A aplicação usa SQLite por padrão. Para migrar para PostgreSQL:
 
-#### `GET /api/models`
-Lista os modelos disponíveis.
+1. Atualize `DATABASE_URL` no `.env`:
+   ```env
+   DATABASE_URL=postgresql://usuario:senha@localhost/hu_automation
+   ```
 
-**Resposta:**
-```json
-{
-  "success": true,
-  "models": {
-    "openai": ["gpt-4o-mini", "gpt-4"],
-    "zello": ["zello-mind"]
-  }
-}
-```
+2. Execute as migrações Alembic:
+   ```bash
+   alembic upgrade head
+   ```
 
-#### `POST /api/process`
-Processa um documento e gera Histórias de Usuário.
+### API Zello MIND
 
-**Parâmetros:**
-- `file`: Arquivo a ser processado
-- `llm_type`: Tipo de LLM (openai/zello)
-- `model`: Modelo específico
-- `prompt_type`: Tipo de processamento
-- `email_recipients`: E-mails destinatários (opcional)
-- `email_format`: Formato do e-mail (html/text)
+A aplicação usa **apenas** a Zello MIND por padrão. A OpenAI é usada apenas em casos específicos de fallback (não recomendado).
 
-**Resposta:**
-```json
-{
-  "success": true,
-  "user_stories": "Conteúdo das Histórias de Usuário...",
-  "generation_info": {
-    "content": "Conteúdo gerado...",
-    "usage": {
-      "prompt_tokens": 150,
-      "completion_tokens": 300,
-      "total_tokens": 450
-    }
-  },
-  "email_result": {
-    "success": true,
-    "message": "E-mail enviado com sucesso"
-  }
-}
-```
+Para obter a chave da Zello MIND:
+1. Acesse o portal da Zello
+2. Solicite a chave da API Zello MIND
+3. Configure no arquivo `.env`
 
-### Tipos de Processamento
+### Envio de E-mails
 
-1. **Gerar Histórias de Requisitos**: Converte documentos em HUs
-2. **Analisar Histórias Existentes**: Melhora HUs já existentes
-3. **Refinar História Específica**: Foca em uma HU específica
-4. **Gerar Critérios de Aceitação**: Cria critérios detalhados
-5. **Estimar Esforço**: Adiciona estimativas de complexidade
+Para habilitar o envio automático de e-mails:
 
-## 🎨 Interface
+1. **Gmail**: Use "Senha de App" em vez da senha normal
+   - Acesse: https://myaccount.google.com/apppasswords
+   - Gere uma senha de app e use no `.env`
 
-A interface foi projetada com foco na experiência do usuário:
+2. **Outros provedores**: Configure o SMTP apropriado
 
-- **Design Moderno**: Paleta de cores profissional (laranja #FF6F00, preto, cinzas)
-- **Responsiva**: Funciona perfeitamente em desktop e mobile
-- **Drag & Drop**: Arraste arquivos diretamente para upload
-- **Feedback Visual**: Status em tempo real do processamento
-- **Resultados Destacados**: Syntax highlighting para melhor legibilidade
+## 🐛 Troubleshooting
 
-## 🔧 Desenvolvimento
+### Erro: "Zello API key não configurada"
 
-### Executando em Modo de Desenvolvimento
+**Solução**: Verifique se `ZELLO_API_KEY` está configurado no arquivo `.env`
 
-```bash
-# Ative o ambiente virtual
-venv\Scripts\activate  # Windows
-# ou
-source venv/bin/activate  # Linux/Mac
+### Erro: "Timeout na requisição Zello"
 
-# Execute com debug
-set FLASK_DEBUG=1  # Windows
-export FLASK_DEBUG=1  # Linux/Mac
-python app.py
-```
+**Solução**: A API Zello pode demorar até 60 segundos para responder. Aguarde o processamento completar.
 
-### Estrutura de Código
+### Erro: "Email não enviado"
 
-- **app.py**: Rotas Flask e orquestração
-- **services/**: Lógica de negócio separada por responsabilidade
-- **config.py**: Configurações centralizadas
-- **templates/**: Interface web em HTML/CSS/JS
+**Solução**: 
+1. Verifique as credenciais SMTP no `.env`
+2. Use "Senha de App" se estiver usando Gmail
+3. Verifique se o e-mail destinatário está correto
 
-### Adicionando Novos Provedores de IA
+### Interface não carrega
 
-1. Adicione a configuração em `config.py`
-2. Implemente o método em `services/llm_service.py`
-3. Atualize a lista de modelos em `app.py`
+**Solução**:
+1. Verifique se a porta 5000 está disponível
+2. Execute `python app.py` novamente
+3. Acesse http://127.0.0.1:5000/
 
-## 🚀 Deploy
+## 📝 Changelog
 
-### Deploy Local
+### v2.0.0 (2025-10-27)
+- ✅ Implementação completa do HU Automation 2.0
+- ✅ Template ProgressoGov com 10 seções obrigatórias
+- ✅ Interface web moderna e responsiva
+- ✅ Integração com Zello MIND
+- ✅ Upload manual de arquivos
+- ✅ Geração automática de HUs
+- ✅ Envio por e-mail (HTML/Texto)
+- ✅ Banco de dados SQLite
+- ✅ Barra de progresso e feedback visual
 
-```bash
-python app.py
-```
-
-### Deploy em Produção
-
-Para deploy em produção, considere:
-
-1. **Configuração de Produção**:
-   - `FLASK_ENV=production`
-   - `FLASK_DEBUG=False`
-   - Configuração de servidor WSGI
-
-2. **Variáveis de Ambiente**:
-   - Configure todas as variáveis necessárias
-   - Use um gerenciador de segredos
-
-3. **Servidor Web**:
-   - Nginx + Gunicorn
-   - Apache + mod_wsgi
-   - Docker container
-
-## 🤝 Contribuição
+## 🤝 Contribuindo
 
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
 5. Abra um Pull Request
 
-## 📝 Licença
+## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto é propriedade da empresa e está sob licença proprietária.
 
-## 📧 Contato
+## 📞 Suporte
 
-**Kassia Costa** - [@kassiacosta-z](https://github.com/kassiacosta-z)
-
-- Email: kassia.costa@zello.loc.br
-- LinkedIn: [Kassia Costa](https://linkedin.com/in/kassia-costa)
-
-## 🙏 Agradecimentos
-
-- OpenAI pela API GPT
-- Zello pela integração MIND
-- Comunidade Python/Flask
-- Todos os contribuidores
+Para suporte técnico ou dúvidas:
+- 📧 Email: kassia.costa@zello.tec.br
+- 📱 Issues: [GitHub Issues](https://github.com/kassiacosta-z/hu-automation/issues)
 
 ---
 
-<div align="center">
-
-**⭐ Se este projeto foi útil, considere dar uma estrela!**
-
-[⬆ Voltar ao topo](#-hu-automation)
-
-</div>
+**Desenvolvido com ❤️ para automatizar a criação de Histórias de Usuário**

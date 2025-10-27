@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automação de Histórias de Usuário</title>
+    <title>HU Automation 2.0</title>
     <style>
         :root {
             --brand: #FF6F00;
@@ -19,8 +19,6 @@
             --success-fg: #1c7d4d;
             --danger-bg: #fdecee;
             --danger-fg: #b42318;
-            --warn-bg: #fff5e6;
-            --warn-fg: #9a6700;
             --shadow-sm: 0 2px 10px rgba(0,0,0,.06);
             --shadow-md: 0 10px 30px rgba(0,0,0,.08);
             --radius: 12px;
@@ -29,12 +27,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
             background: linear-gradient(180deg, #111 0%, #1b1b1b 100%);
             color: var(--gray-900);
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             padding: 24px;
         }
 
@@ -49,820 +45,395 @@
             overflow: hidden;
         }
 
-        /* Header */
         .header {
             background: radial-gradient(1200px 400px at 10% -10%, rgba(255,111,0,.45) 10%, transparent 60%),
                         linear-gradient(135deg, var(--brand) 0%, var(--black) 100%);
             color: var(--white);
             padding: 48px 40px;
-            position: relative;
         }
-        .header-inner { max-width: 1040px; margin: 0 auto; display: flex; align-items: center; gap: 18px; }
-        .logo {
-            width: 52px; height: 52px; border-radius: 14px;
-            background: linear-gradient(135deg, var(--white) 0%, #ffd7b0 100%);
-            color: var(--brand);
-            display: grid; place-items: center;
-            box-shadow: inset 0 0 0 6px rgba(255,255,255,.35), 0 10px 30px rgba(0,0,0,.15);
-            font-size: 26px;
+        
+        .header-inner { 
+            max-width: 1040px; 
+            margin: 0 auto; 
+            display: flex; 
+            align-items: center; 
+            gap: 18px; 
         }
+        
+        .header-logo-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
+            object-fit: contain;
+            background: white;
+            padding: 4px;
+        }
+        
+        .header-content { flex: 1; }
         .header h1 { font-size: 2.1rem; font-weight: 800; letter-spacing: .2px; }
         .header p { opacity: .95; margin-top: 6px; }
 
-        /* Main */
         .main-content { padding: 36px; }
 
-        /* Cards / Sections */
-        .section {
+        .card {
             background: var(--card);
             border: 1px solid var(--stroke);
             border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow-sm);
+            padding: 28px;
             margin-bottom: 24px;
-        }
-        .section-title { display: flex; align-items: center; gap: 10px; color: var(--gray-900); font-weight: 700; margin-bottom: 14px; }
-        .section-title .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px rgba(255,111,0,.15); }
-
-        .form-group {
-            margin-bottom: 25px;
+            box-shadow: var(--shadow-sm);
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
-            font-size: 1.1rem;
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 20px;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--stroke);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color .2s ease, box-shadow .2s ease;
-            background: var(--white);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--brand);
-            box-shadow: 0 0 0 4px rgba(255,111,0,.12);
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-label {
-            display: block;
-            padding: 22px;
-            border: 2px dashed rgba(0,0,0,.12);
-            border-radius: 10px;
+        .upload-area {
+            border: 2px dashed rgba(255, 111, 0, 0.3);
+            border-radius: var(--radius);
+            padding: 60px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.3s;
             background: var(--gray-100);
         }
 
-        .file-input-label:hover {
-            background: #fff;
+        .upload-area:hover {
             border-color: var(--brand);
-            box-shadow: 0 6px 16px rgba(0,0,0,.06);
+            background: rgba(255, 111, 0, 0.05);
         }
 
-        .file-input-label.dragover {
-            background: #e3f2fd;
-            border-color: #2196f3;
-            transform: scale(1.02);
-        }
+        .upload-icon { font-size: 64px; margin-bottom: 16px; }
 
         .file-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #e8f5e8;
-            border-radius: 5px;
-            color: #2e7d32;
+            display: none;
+            background: var(--success-bg);
+            border: 1px solid var(--success-fg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 16px;
+            color: var(--success-fg);
             font-weight: 500;
         }
 
-        .btn {
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--gray-900);
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.1);
+        }
+
+        .btn-process {
             background: linear-gradient(135deg, var(--brand) 0%, var(--brand-700) 100%);
             color: var(--white);
             border: none;
-            padding: 14px 22px;
+            padding: 16px 32px;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-            letter-spacing: .2px;
+            width: 100%;
+            transition: all 0.3s;
         }
 
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,111,0,.35); filter: brightness(1.02); }
+        .btn-process:hover {
+            background: var(--brand-700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,111,0,.3);
+        }
 
-        .btn:disabled {
-            background: #6c757d;
+        .btn-process:disabled {
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-        }
-
-        .loading {
+        /* Barra de Carregamento */
+        .progress-container {
             display: none;
-            text-align: center;
-            padding: 20px;
+            margin-top: 24px;
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 16px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4facfe;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--stroke);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand) 0%, var(--brand-700) 100%);
+            width: 0%;
+            transition: width 0.3s;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .result-section { display: none; background: var(--card); border-radius: var(--radius); padding: 24px; margin-top: 24px; border: 1px solid var(--stroke); box-shadow: var(--shadow-sm); }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
-        .result-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #495057;
-        }
-
-        .result-content {
-            background: #0f0f0f;
-            color: #e9e9e9;
-            border-radius: 12px;
-            padding: 20px 22px;
-            border: 1px solid #1f1f1f;
-            white-space: pre-wrap;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            line-height: 1.65;
-            max-height: 520px;
-            overflow-y: auto;
-            background-image: linear-gradient(transparent 0, transparent 31px, rgba(255,255,255,.03) 32px), linear-gradient(90deg, transparent 0, transparent 31px, rgba(255,255,255,.03) 32px);
-            background-size: 100% 32px, 32px 100%;
-        }
-        .result-content strong { color: #ffd7b0; }
-        .result-content em { color: #d1afff; }
-
-        .status-indicator {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-success { background: var(--success-bg); color: var(--success-fg); border: 1px solid rgba(28,125,77,.25); }
-
-        .status-error { background: var(--danger-bg); color: var(--danger-fg); border: 1px solid rgba(180,35,24,.25); }
-
-        .status-warning { background: var(--warn-bg); color: var(--warn-fg); border: 1px solid rgba(154,103,0,.25); }
-
-        .config-status {
-            background: #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .config-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .config-item:last-child {
-            border-bottom: none;
-        }
-
-        .config-label {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .config-value {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .config-ok {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .config-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        /* Mensagens Persistentes */
+        .message-container {
+            display: none;
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: var(--radius);
             border-left: 4px solid;
         }
 
-        .alert-info { background: #e7f6ff; border-color: #56b4fc; color: #084b7a; }
-
-        .alert-warning { background: var(--warn-bg); border-color: #ffc107; color: var(--warn-fg); }
-
-        .alert-danger { background: var(--danger-bg); border-color: #dc3545; color: var(--danger-fg); }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .message-container.success {
+            background: var(--success-bg);
+            border-color: var(--success-fg);
+            color: var(--success-fg);
         }
 
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .message-container.error {
+            background: var(--danger-bg);
+            border-color: var(--danger-fg);
+            color: var(--danger-fg);
+            display: block !important; /* Força exibição de erros */
         }
 
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #495057;
+        .message-container.info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
         }
 
-        .usage-stats { display: flex; justify-content: space-around; margin-top: 16px; padding: 14px; background: var(--gray-100); border-radius: 10px; border: 1px solid var(--stroke); }
-
-        .stat-item {
-            text-align: center;
+        .result-area {
+            margin-top: 24px;
+            background: #f9fafb;
+            border: 1px solid var(--stroke);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-height: 600px;
+            overflow-y: auto;
         }
 
-        .stat-value { font-size: 1.3rem; font-weight: 800; color: var(--brand); }
-
-        .stat-label {
+        .result-text {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-
-            .header {
-                padding: 30px 20px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .main-content { padding: 20px; }
-
-            .form-section {
-                padding: 20px;
-            }
-
-            .result-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .usage-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
+            line-height: 1.6;
+            color: var(--gray-900);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>HU Automation</h1>
-            <p>Automação de Histórias de Usuário - Transforme trancrições das suas reuniões em Histórias de Usuário estruturadas usando IA</p>
+            <div class="header-inner">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="header-logo-img" onerror="this.style.display='none'">
+                <div class="header-content">
+                    <h1>HU Automation 2.0</h1>
+                    <p>Automação de Histórias de Usuário - Transforme transcrições em Histórias de Usuário estruturadas usando IA</p>
+                </div>
+            </div>
         </div>
 
         <div class="main-content">
-            <!-- Status da Configuração -->
-            <div class="config-status" id="configStatus">
-                <h3>📊 Status da Configuração</h3>
-                <div id="configDetails">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Verificando configurações...</p>
+            <div class="card">
+                <h2>📄 Processar Documento</h2>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📄</div>
+                    <p><strong>Clique para selecionar ou arraste um arquivo aqui</strong></p>
+                    <p style="color: var(--muted); margin-top: 8px;">Formatos aceitos: TXT, PDF, DOC, DOCX, MD</p>
+                </div>
+
+                <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx,.md" style="display: none;" onchange="handleFileSelect(event)">
+
+                <div id="fileInfo" class="file-info"></div>
+
+                <div class="input-group">
+                    <label for="providerSelect">Modelo de IA</label>
+                    <select id="providerSelect">
+                        <option value="zello">Zello MIND</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="emailInput">E-mail Destinatário (opcional)</label>
+                    <input type="email" id="emailInput" placeholder="seu@email.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="formatSelect">Formato do E-mail</label>
+                    <select id="formatSelect">
+                        <option value="preview">Apenas Preview (Não enviar)</option>
+                        <option value="html">HTML</option>
+                        <option value="text">Texto Simples</option>
+                    </select>
+                </div>
+
+                <button class="btn-process" onclick="processDocument()">
+                    🚀 Processar Documento
+                </button>
+
+                <!-- Barra de Carregamento -->
+                <div id="progressContainer" class="progress-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span id="progressText">Processando...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Formulário Principal -->
-            <div class="form-section">
-                <h2>📝 Processar Documento</h2>
-                <form id="processForm" enctype="multipart/form-data">
-                    <div class="grid">
-                        <div class="form-group">
-                            <label for="fileInput">📄 Arquivo de Requisitos</label>
-                            <div class="file-input-wrapper">
-                                <input type="file" id="fileInput" name="file" class="file-input" 
-                                       accept=".txt,.pdf,.doc,.docx,.md" required>
-                                <label for="fileInput" class="file-input-label" id="fileLabel">
-                                    <div>📁 Clique para selecionar ou arraste um arquivo aqui</div>
-                                    <div style="margin-top: 10px; font-size: 0.9rem; color: #6c757d;">
-                                        Formatos aceitos: TXT, PDF, DOC, DOCX, MD
-                                    </div>
-                                </label>
-                            </div>
-                            <div id="fileInfo" class="file-info" style="display: none;"></div>
-                        </div>
+                <!-- Mensagens Persistentes -->
+                <div id="messageContainer" class="message-container"></div>
 
-                        <div class="form-group">
-                            <label for="llmType">🤖 Modelo de IA</label>
-                            <select id="llmType" name="llm_type" required>
-                                <option value="openai">OpenAI (GPT)</option>
-                                <option value="zello">Zello MIND</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid">
-                        <div class="form-group">
-                            <label for="modelSelect">🎯 Modelo Específico</label>
-                            <select id="modelSelect" name="model" required>
-                                <option value="">Carregando modelos...</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="promptType">📋 Tipo de Processamento</label>
-                            <select id="promptType" name="prompt_type" required>
-                                <option value="generate_from_requirements">Gerar Histórias de Requisitos</option>
-                                <option value="analyze_existing">Analisar Histórias Existentes</option>
-                                <option value="refine_story">Refinar História Específica</option>
-                                <option value="generate_acceptance_criteria">Gerar Critérios de Aceitação</option>
-                                <option value="estimate_effort">Estimar Esforço</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid">
-                        <div class="form-group">
-                            <label for="emailRecipients">📧 E-mails Destinatários (opcional)</label>
-                            <input type="text" id="emailRecipients" name="email_recipients" 
-                                   placeholder="email1@exemplo.com, email2@exemplo.com">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="emailFormat">📄 Formato do E-mail</label>
-                            <select id="emailFormat" name="email_format">
-                                <option value="html">HTML</option>
-                                <option value="text">Texto Simples</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 30px;">
-                        <button type="submit" class="btn" id="processBtn">
-                            📃Processar Documento
-                        </button>
-                        <button type="button" class="btn btn-secondary" id="clearBtn" style="margin-left: 15px;">
-                            🗑️ Limpar
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Loading -->
-            <div class="loading" id="loadingSection">
-                <div class="spinner"></div>
-                <p>Processando documento com IA...</p>
-            </div>
-
-            <!-- Resultado -->
-            <div class="result-section" id="resultSection">
-                <div class="result-header">
-                    <h3 class="result-title">📋 Resultado do Processamento</h3>
-                    <div>
-                        <span class="status-indicator status-success" id="resultStatus">Sucesso</span>
-                        <button class="btn btn-success" id="copyBtn" style="margin-left: 15px; padding: 8px 16px; font-size: 0.9rem;">
-                            📋 Copiar
-                        </button>
-                    </div>
-                </div>
-                <div class="result-content" id="resultContent"></div>
-                <div class="usage-stats" id="usageStats" style="display: none;">
-                    <div class="stat-item">
-                        <div class="stat-value" id="promptTokens">-</div>
-                        <div class="stat-label">Tokens de Entrada</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="completionTokens">-</div>
-                        <div class="stat-label">Tokens de Saída</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalTokens">-</div>
-                        <div class="stat-label">Total de Tokens</div>
-                    </div>
+                <!-- Área de Resultado -->
+                <div id="resultArea" class="result-area" style="display: none;">
+                    <h3 style="margin-bottom: 16px;">📋 Resultado do Processamento</h3>
+                    <div id="resultText" class="result-text"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Variáveis globais
-        let availableModels = {};
-        let currentFile = null;
+        let selectedFile = null;
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            setupEventListeners();
-            loadConfiguration();
-            loadModels();
-            loadPromptTypes();
-        });
-
-        function initializeApp() {
-            // Configurar drag and drop
-            const fileLabel = document.getElementById('fileLabel');
-            const fileInput = document.getElementById('fileInput');
-
-            fileLabel.addEventListener('dragover', handleDragOver);
-            fileLabel.addEventListener('dragleave', handleDragLeave);
-            fileLabel.addEventListener('drop', handleDrop);
-            fileInput.addEventListener('change', handleFileSelect);
-        }
-
-        function setupEventListeners() {
-            // Formulário
-            document.getElementById('processForm').addEventListener('submit', handleFormSubmit);
-            document.getElementById('clearBtn').addEventListener('click', clearForm);
-            document.getElementById('copyBtn').addEventListener('click', copyResult);
-
-            // Mudança de LLM
-            document.getElementById('llmType').addEventListener('change', updateModels);
-        }
-
-        // Drag and Drop
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('dragover');
-        }
-
-        function handleDragLeave(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileSelect({ target: { files: files } });
-            }
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
             if (file) {
-                currentFile = file;
+                selectedFile = file;
                 const fileInfo = document.getElementById('fileInfo');
-                fileInfo.innerHTML = `
-                    <strong>📄 ${file.name}</strong><br>
-                    Tamanho: ${formatFileSize(file.size)}<br>
-                    Tipo: ${file.type || 'Desconhecido'}
-                `;
                 fileInfo.style.display = 'block';
+                fileInfo.innerHTML = `
+                    <strong>✓ Arquivo selecionado:</strong> ${file.name} (${formatFileSize(file.size)})
+                    <button onclick="clearFile()" style="float: right; background: none; border: none; cursor: pointer; color: var(--success-fg); font-size: 1.2rem;">✕</button>
+                `;
             }
         }
 
         function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
         }
 
-        // Carregar configurações
-        async function loadConfiguration() {
-            try {
-                const response = await fetch('/api/validate-config');
-                const data = await response.json();
-                displayConfigStatus(data);
-            } catch (error) {
-                console.error('Erro ao carregar configuração:', error);
-                displayConfigError();
-            }
+        function clearFile() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            selectedFile = null;
         }
 
-        function displayConfigStatus(data) {
-            const configDetails = document.getElementById('configDetails');
+        function showProgress(show, percent = 0) {
+            const container = document.getElementById('progressContainer');
+            const fill = document.getElementById('progressFill');
+            const percentEl = document.getElementById('progressPercent');
             
-            if (data.success) {
-                configDetails.innerHTML = `
-                    <div class="config-item">
-                        <span class="config-label">OpenAI</span>
-                        <span class="config-value ${data.config_status.openai_configured ? 'config-ok' : 'config-error'}">
-                            ${data.config_status.openai_configured ? '✓ Configurado' : '✗ Não configurado'}
-                        </span>
-                    </div>
-                    <div class="config-item">
-                        <span class="config-label">Zello MIND</span>
-                        <span class="config-value ${data.config_status.zello_configured ? 'config-ok' : 'config-error'}">
-                            ${data.config_status.zello_configured ? '✓ Configurado' : '✗ Não configurado'}
-                        </span>
-                    </div>
-                    <div class="config-item">
-                        <span class="config-label">E-mail</span>
-                        <span class="config-value ${data.config_status.email_configured ? 'config-ok' : 'config-error'}">
-                            ${data.config_status.email_configured ? '✓ Configurado' : '✗ Não configurado'}
-                        </span>
-                    </div>
-                `;
+            if (show) {
+                container.style.display = 'block';
+                fill.style.width = percent + '%';
+                percentEl.textContent = percent + '%';
             } else {
-                configDetails.innerHTML = `
-                    <div class="alert alert-warning">
-                        <strong>⚠️ Configurações Incompletas:</strong>
-                        <ul style="margin-top: 10px;">
-                            ${data.errors.map(error => `<li>${error}</li>`).join('')}
-                        </ul>
-                        <p style="margin-top: 10px;">
-                            <strong>💡 Dica:</strong> Crie um arquivo .env baseado no env.example
-                        </p>
-                    </div>
-                `;
+                container.style.display = 'none';
             }
         }
 
-        function displayConfigError() {
-            const configDetails = document.getElementById('configDetails');
-            configDetails.innerHTML = `
-                <div class="alert alert-danger">
-                    <strong>❌ Erro ao verificar configurações</strong>
-                    <p>Não foi possível verificar o status das configurações.</p>
-                </div>
-            `;
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            container.textContent = message;
+            container.className = `message-container ${type}`;
+            container.style.display = 'block';
         }
 
-        // Carregar modelos
-        async function loadModels() {
-            try {
-                const response = await fetch('/api/models');
-                const data = await response.json();
-                
-                if (data.success) {
-                    availableModels = data.models;
-                    updateModels();
-                } else {
-                    console.error('Erro ao carregar modelos:', data.error);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar modelos:', error);
-            }
+        function hideMessage() {
+            document.getElementById('messageContainer').style.display = 'none';
         }
 
-        function updateModels() {
-            const llmType = document.getElementById('llmType').value;
-            const modelSelect = document.getElementById('modelSelect');
-            
-            modelSelect.innerHTML = '';
-            
-            if (availableModels[llmType]) {
-                availableModels[llmType].forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                });
-            }
-        }
-
-        // Carregar tipos de prompt
-        async function loadPromptTypes() {
-            try {
-                const response = await fetch('/api/prompt-types');
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Os tipos já estão no HTML, mas poderiam ser carregados dinamicamente
-                    console.log('Tipos de prompt carregados:', data.prompt_types);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar tipos de prompt:', error);
-            }
-        }
-
-        // Processar formulário
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            if (!currentFile) {
-                showAlert('Por favor, selecione um arquivo.', 'warning');
+        async function processDocument() {
+            if (!selectedFile) {
+                showMessage('❌ Por favor, selecione um arquivo primeiro', 'error');
                 return;
             }
 
             const formData = new FormData();
-            formData.append('file', currentFile);
-            formData.append('llm_type', document.getElementById('llmType').value);
-            formData.append('model', document.getElementById('modelSelect').value);
-            formData.append('prompt_type', document.getElementById('promptType').value);
-            formData.append('email_recipients', document.getElementById('emailRecipients').value);
-            formData.append('email_format', document.getElementById('emailFormat').value);
+            formData.append('file', selectedFile);
+            formData.append('provider', document.getElementById('providerSelect').value);
+            formData.append('email', document.getElementById('emailInput').value);
+            formData.append('output_format', document.getElementById('formatSelect').value);
 
-            showLoading(true);
-            hideResult();
+            // Reset UI
+            hideMessage();
+            showProgress(true, 10);
+            document.getElementById('resultArea').style.display = 'none';
 
             try {
+                // Simular progresso
+                const progressInterval = setInterval(() => {
+                    const current = parseInt(document.getElementById('progressFill').style.width);
+                    if (current < 90) {
+                        showProgress(true, current + 10);
+                    }
+                }, 500);
+
                 const response = await fetch('/api/process', {
                     method: 'POST',
                     body: formData
                 });
 
+                clearInterval(progressInterval);
+                showProgress(true, 100);
+
                 const data = await response.json();
-                
-                if (data.success) {
-                    displayResult(data);
-                    showAlert('Documento processado com sucesso!', 'success');
-                } else {
-                    showAlert(`Erro: ${data.error}`, 'danger');
-                }
+
+                setTimeout(() => {
+                    showProgress(false);
+
+                    if (data.success) {
+                        showMessage('✅ Documento processado com sucesso! ' + (data.email_sent ? '📧 E-mail enviado!' : ''), 'success');
+                        
+                        // Exibir resultado
+                        if (data.user_stories) {
+                            document.getElementById('resultText').textContent = data.user_stories;
+                            document.getElementById('resultArea').style.display = 'block';
+                        }
+                    } else {
+                        showMessage('❌ Erro: ' + (data.error || 'Erro desconhecido'), 'error');
+                    }
+                }, 500);
             } catch (error) {
-                console.error('Erro ao processar:', error);
-                showAlert('Erro de conexão. Tente novamente.', 'danger');
-            } finally {
-                showLoading(false);
+                showProgress(false);
+                showMessage('❌ Erro ao processar: ' + error.message, 'error');
+                console.error('Erro:', error);
             }
-        }
-
-        function displayResult(data) {
-            const resultSection = document.getElementById('resultSection');
-            const resultContent = document.getElementById('resultContent');
-            const resultStatus = document.getElementById('resultStatus');
-            const usageStats = document.getElementById('usageStats');
-
-            // Extrair conteúdo das Histórias de Usuário de diferentes estruturas de resposta
-            let userStories = '';
-            if (data.user_stories) {
-                userStories = data.user_stories;
-            } else if (data.generation_info && data.generation_info.content) {
-                userStories = data.generation_info.content;
-            } else if (data.content) {
-                userStories = data.content;
-            }
-
-            // Exibir o conteúdo
-            resultContent.textContent = userStories || 'Nenhum conteúdo gerado';
-            resultStatus.textContent = 'Sucesso';
-            resultStatus.className = 'status-indicator status-success';
-
-            // Mostrar estatísticas de uso se disponíveis
-            let usage = null;
-            if (data.usage && Object.keys(data.usage).length > 0) {
-                usage = data.usage;
-            } else if (data.generation_info && data.generation_info.usage) {
-                usage = data.generation_info.usage;
-            }
-
-            if (usage) {
-                document.getElementById('promptTokens').textContent = usage.prompt_tokens || '-';
-                document.getElementById('completionTokens').textContent = usage.completion_tokens || '-';
-                document.getElementById('totalTokens').textContent = usage.total_tokens || '-';
-                usageStats.style.display = 'flex';
-            } else {
-                usageStats.style.display = 'none';
-            }
-
-            // Mostrar resultado do e-mail se enviado
-            if (data.email_result) {
-                const emailStatus = data.email_result.success ? 'success' : 'danger';
-                const emailMessage = data.email_result.success ? 
-                    `E-mail enviado: ${data.email_result.message}` : 
-                    `Erro no e-mail: ${data.email_result.error}`;
-                
-                showAlert(emailMessage, emailStatus);
-            }
-
-            // Mostrar informações de documento criado se aplicável
-            if (data.document_created) {
-                const docMessage = data.document_created.success ? 
-                    `Documento criado: ${data.document_created.filename}` : 
-                    `Erro ao criar documento: ${data.document_created.error}`;
-                
-                showAlert(docMessage, data.document_created.success ? 'success' : 'danger');
-            }
-
-            resultSection.style.display = 'block';
-            resultSection.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function copyResult() {
-            const resultContent = document.getElementById('resultContent');
-            const text = resultContent.textContent;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                showAlert('Resultado copiado para a área de transferência!', 'success');
-            }).catch(err => {
-                console.error('Erro ao copiar:', err);
-                showAlert('Erro ao copiar resultado.', 'danger');
-            });
-        }
-
-        function clearForm() {
-            document.getElementById('processForm').reset();
-            document.getElementById('fileInfo').style.display = 'none';
-            hideResult();
-            currentFile = null;
-        }
-
-        function showLoading(show) {
-            const loadingSection = document.getElementById('loadingSection');
-            const processBtn = document.getElementById('processBtn');
-            
-            loadingSection.style.display = show ? 'block' : 'none';
-            processBtn.disabled = show;
-            processBtn.textContent = show ? '⏳ Processando...' : '🚀 Processar Documento';
-        }
-
-        function hideResult() {
-            document.getElementById('resultSection').style.display = 'none';
-        }
-
-        function showAlert(message, type) {
-            // Remove alertas existentes
-            const existingAlerts = document.querySelectorAll('.alert');
-            existingAlerts.forEach(alert => alert.remove());
-
-            // Criar novo alerta
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.innerHTML = `<strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠️' : '❌'}</strong> ${message}`;
-            
-            // Inserir no topo do conteúdo principal
-            const mainContent = document.querySelector('.main-content');
-            mainContent.insertBefore(alert, mainContent.firstChild);
-
-            // Remover após 5 segundos
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.remove();
-                }
-            }, 5000);
         }
     </script>
 </body>

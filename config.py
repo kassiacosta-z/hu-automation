@@ -8,7 +8,11 @@ from typing import Optional
 from dotenv import load_dotenv
 
 # Carrega variáveis de ambiente do arquivo .env
-load_dotenv()
+loaded = load_dotenv()
+if loaded:
+    print(".env carregado")
+else:
+    print(".env nao encontrado; usando variaveis de ambiente do sistema")
 
 
 class Config:
@@ -36,6 +40,22 @@ class Config:
     MAX_CONTENT_LENGTH: int = int(os.getenv('MAX_CONTENT_LENGTH', '16777216'))  # 16MB
     UPLOAD_FOLDER: str = os.getenv('UPLOAD_FOLDER', 'uploads')
     ALLOWED_EXTENSIONS: set = {'txt', 'pdf', 'doc', 'docx', 'md'}
+
+    # Banco de dados (SQLite por padrão para desenvolvimento)
+    DATABASE_URL: str = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+    
+    # Configurações do repositório de transcrições
+    TRANSCRIPTION_REPO_PATH: Optional[str] = os.getenv('TRANSCRIPTION_REPO_PATH')
+    MONITOR_INTERVAL_SECONDS: int = int(os.getenv('MONITOR_INTERVAL_SECONDS', '60'))
+
+    # Google APIs
+    GOOGLE_CREDENTIALS_JSON: Optional[str] = os.getenv('GOOGLE_CREDENTIALS_JSON')  # caminho do JSON da service account
+    GMAIL_DELEGATED_USER: Optional[str] = os.getenv('GMAIL_DELEGATED_USER')  # e-mail a ser delegado (DWD)
+    GDRIVE_ROOT_FOLDER_ID: Optional[str] = os.getenv('GDRIVE_ROOT_FOLDER_ID')  # pasta raiz onde salvar
+    
+    # Configurações Google Drive (para buscar transcrições)
+    CENTRAL_DRIVE_USER: Optional[str] = os.getenv('CENTRAL_DRIVE_USER')  # usuário central do Drive
+    BACKUP_FOLDER_NAME: str = os.getenv('BACKUP_FOLDER_NAME', 'Transcrições Gemini - Zello Tec')  # pasta de backup
     
     @classmethod
     def validate_config(cls) -> list[str]:

@@ -9,8 +9,10 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from config import config
-from services import LLMService, EmailService, FileService, GenerationService
+from services import LLMService, EmailService, FileService, GenerationService, RepositoryMonitor
 from prompts import UserStoryPrompts
+from database import init_db, SessionLocal
+from models import TranscriptionJob, ProcessingArtifact, JobStatus
 
 
 def create_app() -> Flask:
@@ -19,16 +21,44 @@ def create_app() -> Flask:
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
     
+    # Inicializar banco (apenas estrutura; pode ser substituído por Alembic)
+    if os.getenv('AUTO_CREATE_DB', 'true').lower() == 'true':
+        try:
+            init_db()
+        except Exception as _:
+            # Mantém a aplicação viva mesmo se preferirmos rodar migrações Alembic
+            pass
+
     # Inicializar serviços
     llm_service = LLMService()
     email_service = EmailService()
     file_service = FileService()
     generation_service = GenerationService(llm_service)
     
+    # Inicializar monitor de repositório (se configurado)
+    repository_monitor = None
+    if config.TRANSCRIPTION_REPO_PATH:
+        try:
+            # Certificar que o diretório do repositório existe
+            try:
+                os.makedirs(config.TRANSCRIPTION_REPO_PATH, exist_ok=True)
+                print(f"Repositório de transcrições: {config.TRANSCRIPTION_REPO_PATH}")
+            except Exception as dir_err:
+                print(f"Aviso: não foi possível criar o diretório do repositório: {dir_err}")
+
+            repository_monitor = RepositoryMonitor()
+        except Exception as e:
+            print(f"Aviso: Não foi possível inicializar o monitor de repositório: {str(e)}")
+    
     @app.route('/')
     def index():
         """Página principal da aplicação."""
         return render_template('index.html')
+    
+    @app.route('/admin/monitor')
+    def admin_monitor():
+        """Página de administração do monitor de repositório."""
+        return render_template('admin_monitor.html')
     
     @app.route('/api/process', methods=['POST'])
     def process_file():
@@ -54,7 +84,8 @@ def create_app() -> Flask:
                 }), 400
             
             # Obter parâmetros da requisição
-            provider = request.form.get('provider', request.form.get('llm_type', 'openai'))
+            # Usar apenas Zello MIND (sem fallback para OpenAI)
+            provider = 'zello'
             email = request.form.get('email', request.form.get('email_recipients', ''))
             output_format = request.form.get('output_format', request.form.get('email_format', 'preview'))
             # Normalizar valores possíveis do dropdown antigo para os novos
@@ -89,9 +120,12 @@ def create_app() -> Flask:
                 )
                 
                 if not generation_result['success']:
+                    error_msg = generation_result.get('error', 'Erro desconhecido')
+                    print(f"Erro na geração: {error_msg}")
                     return jsonify(generation_result), 500
                 
                 user_stories = generation_result['content']
+                print(f"Geração bem-sucedida! Provider: {generation_result.get('provider', 'unknown')}")
                 
                 # Processar baseado no formato de saída
                 if api_output_format in ['pdf', 'docx']:
@@ -187,6 +221,135 @@ def create_app() -> Flask:
                 'success': False,
                 'error': f'Erro interno: {str(e)}'
             }), 500
+
+    @app.route('/api/process-file/<int:job_id>', methods=['POST'])
+    def process_single_job(job_id: int):
+        """
+        Processa um arquivo específico identificado por job_id.
+        Atualiza status do job e cria artefato JSON com o resultado.
+        """
+        session = SessionLocal()
+        try:
+            job: TranscriptionJob | None = session.get(TranscriptionJob, job_id)
+            if not job:
+                return jsonify({'success': False, 'error': 'Job não encontrado'}), 404
+
+            # Atualizar status para processing
+            job.status = JobStatus.PROCESSING
+            job.attempts = (job.attempts or 0) + 1
+            job.updated_at = __import__('datetime').datetime.utcnow()
+            session.commit()
+
+            # Extrair texto do arquivo
+            text_result = file_service.extract_text_from_file(job.source_uri)
+            if not text_result.get('success'):
+                job.status = JobStatus.FAILED
+                job.updated_at = __import__('datetime').datetime.utcnow()
+                session.commit()
+                return jsonify({'success': False, 'error': text_result.get('error', 'Falha ao extrair texto') }), 400
+
+            extracted_text = text_result['text']
+
+            # Gerar HU com auto-correção (usa apenas Zello MIND)
+            provider = request.args.get('provider', 'zello')
+            max_attempts = int(request.args.get('max_attempts', '3'))
+            generation_result = generation_service.generate_with_auto_correction(
+                text=extracted_text,
+                provider=provider,
+                max_attempts=max_attempts
+            )
+
+            if not generation_result.get('success'):
+                job.status = JobStatus.FAILED
+                job.updated_at = __import__('datetime').datetime.utcnow()
+                session.commit()
+                return jsonify({'success': False, 'error': generation_result.get('error', 'Falha na geração')}), 500
+
+            user_stories = generation_result['content']
+
+            # Salvar artefato JSON em disco
+            artifacts_dir = os.path.join('artifacts')
+            try:
+                os.makedirs(artifacts_dir, exist_ok=True)
+            except Exception:
+                pass
+            artifact_filename = f"job_{job.id}.json"
+            artifact_path = os.path.join(artifacts_dir, artifact_filename)
+            try:
+                with open(artifact_path, 'w', encoding='utf-8') as f:
+                    import json as _json
+                    _json.dump({
+                        'job_id': job.id,
+                        'source_uri': job.source_uri,
+                        'user_stories': user_stories,
+                        'generation_info': generation_result
+                    }, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                job.status = JobStatus.FAILED
+                job.updated_at = __import__('datetime').datetime.utcnow()
+                session.commit()
+                return jsonify({'success': False, 'error': f'Falha ao salvar artefato: {str(e)}'}), 500
+
+            # Registrar artefato no banco
+            try:
+                artifact = ProcessingArtifact(
+                    job_id=job.id,
+                    type='json',
+                    path=artifact_path,
+                    size=os.path.getsize(artifact_path),
+                    created_at=__import__('datetime').datetime.utcnow()
+                )
+                session.add(artifact)
+            except Exception:
+                pass
+
+            # Atualizar status para processed
+            job.status = JobStatus.PROCESSED
+            job.updated_at = __import__('datetime').datetime.utcnow()
+            session.commit()
+
+            # Envio de email opcional (se query param email for fornecido)
+            email_recipients = request.args.get('email', '')
+            email_result = None
+            if email_recipients:
+                emails = [e.strip() for e in email_recipients.split(',') if e.strip()]
+                if emails:
+                    try:
+                        email_result = email_service.send_user_stories_email(
+                            to_emails=emails,
+                            user_stories=user_stories,
+                            format_type='html'
+                        )
+                    except Exception as _:
+                        email_result = {'success': False, 'error': 'Falha ao enviar e-mail'}
+
+            return jsonify({
+                'success': True,
+                'message': 'Processamento concluído',
+                'job': {
+                    'id': job.id,
+                    'status': job.status,
+                },
+                'artifact': {
+                    'type': 'json',
+                    'path': artifact_path,
+                    'filename': artifact_filename
+                },
+                'email_result': email_result,
+                'generation_info': generation_result
+            })
+        except Exception as e:
+            try:
+                # Tenta marcar como failed em caso de erro geral
+                if 'job' in locals() and job:
+                    job.status = JobStatus.FAILED
+                    job.updated_at = __import__('datetime').datetime.utcnow()
+                    session.commit()
+            except Exception:
+                pass
+            return jsonify({'success': False, 'error': str(e)}), 500
+        finally:
+            session.close()
     
     @app.route('/api/models', methods=['GET'])
     def get_available_models():
@@ -227,6 +390,26 @@ def create_app() -> Flask:
                 'success': False,
                 'error': str(e)
             }), 500
+
+    @app.route('/api/test-llm-connection', methods=['GET'])
+    def test_llm_connection():
+        """
+        Testa conectividade com Zello e OpenAI.
+        """
+        results = {}
+        # teste Zello
+        try:
+            llm_service.get_completion('zello', [{"role": "user", "content": "ping"}])
+            results['zello'] = {'ok': True}
+        except Exception as e:
+            results['zello'] = {'ok': False, 'error': str(e)}
+        # teste OpenAI
+        try:
+            llm_service.get_completion('openai', [{"role": "user", "content": "ping"}])
+            results['openai'] = {'ok': True}
+        except Exception as e:
+            results['openai'] = {'ok': False, 'error': str(e)}
+        return jsonify({'success': True, 'results': results})
     
     @app.route('/api/validate-config', methods=['GET'])
     def validate_config():
@@ -244,8 +427,142 @@ def create_app() -> Flask:
                 'config_status': {
                     'openai_configured': bool(config.OPENAI_API_KEY),
                     'zello_configured': bool(config.ZELLO_API_KEY),
-                    'email_configured': bool(config.SMTP_USERNAME and config.SMTP_PASSWORD)
+                    'email_configured': bool(config.SMTP_USERNAME and config.SMTP_PASSWORD),
+                    'repository_configured': bool(config.TRANSCRIPTION_REPO_PATH)
                 }
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    @app.route('/api/scan-repository', methods=['POST'])
+    def scan_repository():
+        """
+        Escaneia o repositório de transcrições.
+        
+        Returns:
+            JSON com resultado do scan
+        """
+        try:
+            if not repository_monitor:
+                return jsonify({
+                    'success': False,
+                    'error': 'Monitor de repositório não configurado'
+                }), 400
+            
+            result = repository_monitor.scan_repository()
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+
+    @app.route('/api/collect-emails', methods=['POST'])
+    def collect_emails():
+        """
+        Coleta e-mails do Gemini via Gmail e registra jobs. Salva texto bruto no Drive (opcional).
+        Body opcional: { "users": ["colab@empresa.com"], "max": 20 }
+        """
+        if not gmail_service:
+            return jsonify({'success': False, 'error': 'Gmail não configurado'}), 400
+        from database import SessionLocal
+        from models import TranscriptionJob, JobStatus
+        import datetime as _dt
+        payload = request.get_json(silent=True) or {}
+        users = payload.get('users') or ([config.GMAIL_DELEGATED_USER] if config.GMAIL_DELEGATED_USER else [])
+        max_results = int(payload.get('max', 20))
+        if not users:
+            return jsonify({'success': False, 'error': 'Nenhum usuário fornecido'}), 400
+        session = SessionLocal()
+        created = 0
+        errors = []
+        try:
+            for user in users:
+                try:
+                    msgs = gmail_service.list_gemini_messages(user, max_results=max_results)
+                    for m in msgs:
+                        mid = m['id']
+                        full = gmail_service.get_message(user, mid)
+                        text = gmail_service.extract_plain_text(full)
+                        # hash simples baseado em id da mensagem
+                        file_hash = mid
+                        exists = session.query(TranscriptionJob).filter_by(source_hash=file_hash).first()
+                        if exists:
+                            continue
+                        # opcionalmente salva no Drive
+                        gdrive_path = None
+                        if gdrive_service and config.GDRIVE_ROOT_FOLDER_ID:
+                            folder_user = gdrive_service.ensure_folder(config.GDRIVE_ROOT_FOLDER_ID, user)
+                            fid = gdrive_service.upload_text(folder_user, f"gemini_{mid}.txt", text)
+                            gdrive_path = f"drive://{fid}"
+                        job = TranscriptionJob(
+                            source_uri=f"gmail://{user}/{mid}",
+                            source_hash=file_hash,
+                            status=JobStatus.DISCOVERED,
+                            attempts=0,
+                            created_at=_dt.datetime.utcnow(),
+                            updated_at=_dt.datetime.utcnow(),
+                            collaborator_email=user,
+                        )
+                        session.add(job)
+                        session.commit()
+                        created += 1
+                except Exception as ue:
+                    errors.append({'user': user, 'error': str(ue)})
+            return jsonify({'success': True, 'created': created, 'errors': errors})
+        except Exception as e:
+            session.rollback()
+            return jsonify({'success': False, 'error': str(e)}), 500
+        finally:
+            session.close()
+    
+    @app.route('/api/repository-stats', methods=['GET'])
+    def get_repository_stats():
+        """
+        Obtém estatísticas do repositório e banco de dados.
+        
+        Returns:
+            JSON com estatísticas
+        """
+        try:
+            if not repository_monitor:
+                return jsonify({
+                    'success': False,
+                    'error': 'Monitor de repositório não configurado'
+                }), 400
+            
+            result = repository_monitor.get_repository_stats()
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    
+    @app.route('/api/recent-jobs', methods=['GET'])
+    def get_recent_jobs():
+        """
+        Obtém jobs recentes do banco de dados.
+        
+        Returns:
+            JSON com lista de jobs recentes
+        """
+        try:
+            if not repository_monitor:
+                return jsonify({
+                    'success': False,
+                    'error': 'Monitor de repositório não configurado'
+                }), 400
+            
+            limit = request.args.get('limit', 50, type=int)
+            jobs = repository_monitor.get_recent_jobs(limit)
+            return jsonify({
+                'success': True,
+                'jobs': jobs
             })
         except Exception as e:
             return jsonify({
@@ -311,12 +628,12 @@ if __name__ == '__main__':
     # Validar configurações antes de iniciar
     config_errors = config.validate_config()
     if config_errors:
-        print("⚠️  AVISOS DE CONFIGURAÇÃO:")
+        print("AVISOS DE CONFIGURACAO:")
         for error in config_errors:
             print(f"   - {error}")
-        print("\n💡 Dica: Crie um arquivo .env baseado no env.example")
+        print("\nDica: Crie um arquivo .env baseado no env.example")
     
-    print(f"🚀 Iniciando servidor em http://{config.HOST}:{config.PORT}")
+    print(f"Iniciando servidor em http://{config.HOST}:{config.PORT}")
     app.run(
         host=config.HOST,
         port=config.PORT,
