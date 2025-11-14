@@ -6,6 +6,25 @@ Este é seu ponto de partida. Escolha seu perfil abaixo:
 
 ---
 
+## 🤖 Dica Importante: Use IA Para Ajudar!
+
+**Você não precisa fazer tudo manualmente!**
+
+Ferramentas como **Cursor**, **GitHub Copilot** ou **ChatGPT** podem:
+- Explicar códigos que você não entende
+- Gerar comandos automaticamente
+- Resolver erros pra você
+- Modificar o código conforme você pede
+
+**💡 Exemplo:** Em vez de editar arquivos na mão, você pode pedir:
+- "Cursor, muda a cor do botão para azul"
+- "Adiciona um campo de prioridade no formulário"
+- "Explica o que este código faz"
+
+**Os guias mostram as duas formas: manual E com IA!**
+
+---
+
 ## 👤 Qual é o Seu Perfil?
 
 ### 🟢 Nunca programei na vida
@@ -356,4 +375,5 @@ Lembre-se:
 *Criado com ❤️ para tornar automação acessível para todos.*
 
 *Última atualização: Novembro 2025*
+
 

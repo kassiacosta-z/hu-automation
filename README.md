@@ -20,7 +20,7 @@ O HU Automation 2.0 é uma aplicação web desenvolvida em Flask que processa tr
 ## 🛠️ Pré-requisitos
 
 - Python 3.10 ou superior
-- Zello MIND API Key (ou OpenAI API Key como alternativa)
+- ✅ **Zello MIND API Key** (JÁ VEM CONFIGURADA!)
 - SMTP configurado para envio de e-mails (opcional)
 
 ## 📦 Instalação
@@ -70,11 +70,8 @@ FLASK_HOST=127.0.0.1
 FLASK_PORT=5000
 FLASK_DEBUG=True
 
-# OpenAI API (opcional - apenas se quiser usar OpenAI)
-OPENAI_API_KEY=sk-proj-sua-chave-aqui
-
-# Zello MIND API
-ZELLO_API_KEY=sua-chave-zello-aqui
+# Zello MIND API (JÁ VEM CONFIGURADA!)
+ZELLO_API_KEY=LYIB_WidIVeADAXylsTDcx-6oaWoq5CfPL9W_-bZ5Ag=
 ZELLO_BASE_URL=https://smartdocs-api-hlg.zello.space
 
 # Email (SMTP) - Opcional
@@ -141,7 +138,7 @@ hu-automation/
 ├── models/
 │   └── __init__.py            # Modelos SQLAlchemy
 ├── services/
-│   ├── llm_service.py         # Integração com Zello MIND/OpenAI
+│   ├── llm_service.py         # Integração com Zello MIND
 │   ├── email_service.py       # Envio de e-mails
 │   ├── file_service.py        # Processamento de arquivos
 │   ├── generation_service.py  # Geração e validação de HUs
@@ -173,12 +170,13 @@ A aplicação usa SQLite por padrão. Para migrar para PostgreSQL:
 
 ### API Zello MIND
 
-A aplicação usa **apenas** a Zello MIND por padrão. A OpenAI é usada apenas em casos específicos de fallback (não recomendado).
+A aplicação usa **exclusivamente** a Zello MIND para gerar Histórias de Usuário.
 
-Para obter a chave da Zello MIND:
-1. Acesse o portal da Zello
-2. Solicite a chave da API Zello MIND
-3. Configure no arquivo `.env`
+**🎉 Boa notícia:** A chave JÁ VEM CONFIGURADA!
+- Você NÃO precisa criar conta
+- Você NÃO precisa solicitar chave
+- Você NÃO precisa configurar nada
+- Basta copiar o `env.example` e está pronto!
 
 ### Envio de E-mails
 

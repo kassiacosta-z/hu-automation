@@ -9,17 +9,19 @@
 ## 📚 Índice
 
 1. [O Que Você Vai Aprender](#1-o-que-você-vai-aprender)
-2. [O Que É Este Sistema?](#2-o-que-é-este-sistema)
-3. [Preparando Seu Computador](#3-preparando-seu-computador)
-4. [Baixando o Projeto](#4-baixando-o-projeto)
-5. [Configurando o Sistema](#5-configurando-o-sistema)
-6. [Rodando Pela Primeira Vez](#6-rodando-pela-primeira-vez)
-7. [Como Usar o Sistema](#7-como-usar-o-sistema)
-8. [Modificando Configurações](#8-modificando-configurações)
-9. [Entendendo a Estrutura](#9-entendendo-a-estrutura)
-10. [Fazendo Pequenas Alterações](#10-fazendo-pequenas-alterações)
-11. [Problemas Comuns e Soluções](#11-problemas-comuns-e-soluções)
-12. [Glossário de Termos](#12-glossário-de-termos)
+2. [Entendendo as Ferramentas (Com Comparações Simples)](#2-entendendo-as-ferramentas-com-comparações-simples)
+3. [O Que É Este Sistema?](#3-o-que-é-este-sistema)
+4. [Preparando Seu Computador](#4-preparando-seu-computador)
+5. [Baixando o Projeto](#5-baixando-o-projeto)
+6. [Configurando o Sistema](#6-configurando-o-sistema)
+7. [Rodando Pela Primeira Vez](#7-rodando-pela-primeira-vez)
+8. [Como Usar o Sistema](#8-como-usar-o-sistema)
+9. [Modificando Configurações](#9-modificando-configurações)
+10. [Entendendo a Estrutura](#10-entendendo-a-estrutura)
+11. [Fazendo Pequenas Alterações](#11-fazendo-pequenas-alterações)
+12. [Usando Cursor ou IAs Para Modificar](#12-usando-cursor-ou-ias-para-modificar)
+13. [Problemas Comuns e Soluções](#13-problemas-comuns-e-soluções)
+14. [Glossário de Termos](#14-glossário-de-termos)
 
 ---
 
@@ -29,17 +31,247 @@ Depois de ler este guia, você será capaz de:
 
 - ✅ **Instalar** todas as ferramentas necessárias no seu computador
 - ✅ **Baixar** o projeto do repositório online
-- ✅ **Configurar** as chaves de API e senhas necessárias
+- ✅ **Configurar** as chaves de API (já vem pronta!)
 - ✅ **Rodar** o sistema no seu computador
 - ✅ **Usar** a interface web para processar transcrições
-- ✅ **Modificar** configurações básicas (emails, textos, comportamentos)
+- ✅ **Modificar** configurações usando Cursor ou manualmente
 - ✅ **Resolver** problemas comuns que podem aparecer
 
 ---
 
-## 2. O Que É Este Sistema?
+## 2. Entendendo as Ferramentas (Com Comparações Simples)
 
-### 2.1 Explicação Simples
+### 2.1 Por Que Essas Comparações?
+
+Vamos explicar cada ferramenta comparando com coisas que você já conhece do dia a dia. Isso torna tudo muito mais fácil de entender!
+
+---
+
+### 2.2 Python
+
+**O que é?** Uma linguagem de programação (como você "fala" com o computador)
+
+**Comparação:**
+- Python é como o **Microsoft Word** → Você precisa instalar o Word para abrir arquivos .docx
+- Da mesma forma, você precisa instalar o **Python** para rodar arquivos .py
+
+**Por que precisamos?**
+- Este sistema foi escrito em Python
+- Sem Python instalado, é como tentar abrir um .docx sem ter o Word
+
+---
+
+### 2.3 Git
+
+**O que é?** Uma ferramenta para controlar versões de arquivos
+
+**Comparação:**
+- Git é como o **histórico de versões do Google Docs**
+- Lembra quando você vê "Versão de 10:30", "Versão de 11:45"?
+- Git faz isso, mas de forma muito mais poderosa!
+
+**Por que precisamos?**
+- Para baixar o projeto do GitHub
+- Para voltar atrás se algo der errado (como Ctrl+Z super poderoso)
+
+---
+
+### 2.4 GitHub
+
+**O que é?** Um site que guarda projetos de código
+
+**Comparação:**
+```
+GitHub = Google Drive / OneDrive... mas para programadores!
+
+Google Drive:                    GitHub:
+📁 Guarda documentos            📁 Guarda código
+👥 Compartilha com equipe       👥 Compartilha com equipe  
+📱 Acessa de qualquer lugar     📱 Acessa de qualquer lugar
+📝 Histórico de versões         📝 Histórico de versões (mais poderoso!)
+```
+
+**Diferenças principais:**
+- GitHub é **especializado em código**
+- Tem ferramentas que o Google Drive não tem (controle de versões avançado, revisão de código)
+- É **gratuito** para projetos públicos
+
+---
+
+### 2.5 VS Code (Editor de Código)
+
+**O que é?** Um programa para editar arquivos de código
+
+**Comparação:**
+```
+VS Code = Bloco de Notas++
+
+Bloco de Notas:                  VS Code:
+📝 Edita texto simples          📝 Edita texto + código
+🎨 Sem cores                    🎨 Colore o código (mais fácil de ler!)
+❌ Sem ajuda                    ✅ Sugere comandos
+❌ Não avisa erros              ✅ Mostra erros antes de rodar
+```
+
+**Por que é melhor?**
+- **Coloriza** o código (cada parte tem uma cor)
+- **Avisa erros** enquanto você digita
+- Tem **extensões** (como apps para o seu editor)
+
+---
+
+### 2.6 Terminal / CMD / PowerShell
+
+**O que é?** Uma janela preta onde você digita comandos
+
+**Comparação:**
+- Terminal é como a **caixa de busca do Windows**, mas muito mais poderosa
+- Em vez de clicar em ícones, você **digita** o que quer fazer
+
+**Exemplos:**
+```
+Modo Gráfico (clicando):         Modo Terminal (digitando):
+🖱️ Clica duplo em pasta         cd pasta-nome
+🖱️ Clica direito → Copiar       cp arquivo.txt backup.txt
+🖱️ Procura no menu               python app.py
+```
+
+**Por que usar?**
+- Mais **rápido** (quando você aprende)
+- Algumas coisas **só funcionam** no terminal
+- Parece complicado, mas é só **copiar e colar** comandos!
+
+---
+
+### 2.7 Cursor (IA para Programação)
+
+**O que é?** Um editor de código com inteligência artificial
+
+**Comparação:**
+```
+Cursor = Word com corretor automático... MAS MUITO MELHOR!
+
+Word:                            Cursor:
+✍️ Você escreve                 ✍️ Você escreve
+✅ Corrige ortografia           ✅ Corrige código
+💬 Sugere palavras              💬 Sugere código inteiro!
+❌ Não entende contexto         ✅ Entende o que você quer fazer
+```
+
+**O que Cursor faz:**
+- Você pede: "Muda a cor do botão para azul"
+- Cursor **entende** e **faz pra você**!
+- É como ter um programador ajudando você o tempo todo
+
+**Exemplos de uso:**
+1. **Explicar código:**
+   - Seleciona código → Pergunta: "O que isso faz?"
+   - Cursor explica em português simples!
+
+2. **Modificar código:**
+   - Você: "Adiciona um campo de email no formulário"
+   - Cursor: Adiciona o código automaticamente
+
+3. **Corrigir erros:**
+   - Apareceu erro? Cursor sugere como corrigir
+
+---
+
+### 2.8 API Key (Chave de API)
+
+**O que é?** Uma "senha especial" para usar serviços online
+
+**Comparação:**
+- API Key é como seu **CPF** ou **número de cartão de crédito**
+- Você precisa dela para **identificar** que é você usando o serviço
+
+**Como funciona:**
+```
+Sem API Key:                     Com API Key:
+"Quem é você?"                  "Ah, é você! Pode usar!"
+❌ Acesso negado                ✅ Acesso liberado
+```
+
+**Para que usamos:**
+- **Zello MIND**: IA que gera as Histórias de Usuário
+- Sistema precisa da chave para usar a IA
+
+**Boa notícia:** 🎉 **As chaves JÁ VÊM CONFIGURADAS neste projeto!**
+Você não precisa criar ou buscar nada!
+
+---
+
+### 2.9 Ambiente Virtual (venv)
+
+**O que é?** Uma "caixa isolada" para instalar bibliotecas
+
+**Comparação:**
+```
+Seu computador sem venv:         Seu computador com venv:
+📦 Instala tudo misturado       📦 Cada projeto em sua caixa
+⚠️ Conflitos entre projetos     ✅ Projetos não se misturam
+🔧 Difícil de limpar            🗑️ Deleta a caixa = limpo!
+```
+
+**Analogia:**
+- É como ter **gavetas separadas** na sua cozinha
+- Gaveta 1: Utensílios do Projeto A
+- Gaveta 2: Utensílios do Projeto B
+- Não se misturam! Tudo organizado!
+
+**Por que usar:**
+- Evita **bagunça** no seu computador
+- Cada projeto tem suas próprias ferramentas
+- Pode **deletar tudo** sem afetar o sistema
+
+---
+
+### 2.10 Resumo Visual
+
+```
+🏠 SEU COMPUTADOR
+│
+├─ 🐍 Python (instalado)
+│  └─ "Idioma" que o sistema fala
+│
+├─ 📁 GitHub (website)
+│  └─ "Google Drive do código"
+│
+├─ 💻 Git (instalado)
+│  └─ "Baixa código do GitHub"
+│
+├─ ✏️ VS Code ou Cursor (instalado)
+│  └─ "Word para código"
+│  └─ Cursor = VS Code + IA super esperta
+│
+├─ ⬛ Terminal (já vem no PC)
+│  └─ "Caixa de busca super poderosa"
+│
+└─ 📦 Ambiente Virtual (criamos depois)
+   └─ "Gaveta do projeto"
+```
+
+---
+
+### 2.11 Tudo Junto: Como Funciona
+
+**Passo a passo:**
+
+1. **Você instala Python** → Como instalar o Word
+2. **Você instala Git** → Como instalar o Drive para Desktop
+3. **Você instala VS Code/Cursor** → Como instalar um editor de texto melhor
+4. **Git baixa o projeto do GitHub** → Como baixar um arquivo do Drive
+5. **Cria ambiente virtual** → Como criar uma pasta separada
+6. **Python roda o sistema** → Como abrir um documento no Word
+7. **Você acessa pelo navegador** → Como acessar um site normal
+
+**Pronto! Sistema funcionando! 🎉**
+
+---
+
+## 3. O Que É Este Sistema?
+
+### 3.1 Explicação Simples
 
 Este sistema é como um **assistente robô** que:
 
@@ -780,7 +1012,436 @@ project_name = request.form.get('projectName', '')
 
 ---
 
-## 11. Problemas Comuns e Soluções
+## 12. Usando Cursor ou IAs Para Modificar
+
+### 12.1 Por Que Usar IA?
+
+**Manual vs IA:**
+
+```
+Jeito Manual:                      Jeito com Cursor/IA:
+📖 Ler guia passo a passo         💬 "Cursor, faz isso pra mim"
+⌨️ Digitar código                 🤖 Cursor escreve o código
+🐛 Debugar erros sozinho          ✅ Cursor sugere correções
+⏰ Demora horas                   ⚡ Demora minutos
+```
+
+**Você NÃO precisa saber programar!**
+- Fale em português natural
+- Cursor entende e executa
+- É como ter um programador 24/7
+
+---
+
+### 12.2 Instalando o Cursor
+
+#### Passo 1: Download
+
+1. Acesse: https://cursor.sh/
+2. Clique em "Download"
+3. Escolha seu sistema (Windows/Mac/Linux)
+4. Instale como qualquer programa
+
+#### Passo 2: Abrir o Projeto
+
+1. Abra o Cursor
+2. Menu "File" → "Open Folder"
+3. Selecione a pasta `hu-automation`
+4. Pronto! Projeto aberto no Cursor
+
+---
+
+### 12.3 Como Usar o Cursor
+
+#### Conversar com Cursor (Chat)
+
+1. **Abrir chat:** Pressione `Ctrl + L` (ou `Cmd + L` no Mac)
+2. **Fazer perguntas:**
+
+```
+Você: "O que este arquivo faz?"
+Cursor: Explica em português
+
+Você: "Como funciona a geração de HU?"
+Cursor: Explica o fluxo completo
+
+Você: "Por que deu esse erro?"
+Cursor: Analisa e explica
+```
+
+#### Pedir Modificações
+
+**Exemplo 1: Mudar cor**
+
+```
+Você: "Muda a cor do botão 'Processar' para verde"
+
+Cursor:
+1. Encontra o arquivo certo (templates/index.html)
+2. Localiza o botão
+3. Muda o código
+4. Mostra a diferença (antes/depois)
+5. Você clica em "Accept" ou "Reject"
+```
+
+**Exemplo 2: Adicionar campo**
+
+```
+Você: "Adiciona um campo de 'Prioridade' no formulário 
+com opções Alta, Média e Baixa"
+
+Cursor:
+1. Modifica o HTML (templates/index.html)
+2. Modifica o backend (app.py)  
+3. Mostra todas as mudanças
+4. Você aceita
+```
+
+**Exemplo 3: Corrigir erro**
+
+```
+[Apareceu um erro no terminal]
+
+Você: "Por que deu esse erro?" [cola o erro]
+
+Cursor:
+1. Analisa o erro
+2. Explica o que aconteceu
+3. Sugere correção
+4. Aplica a correção se você quiser
+```
+
+---
+
+### 12.4 Comandos Úteis no Cursor
+
+| Atalho | O Que Faz |
+|--------|-----------|
+| `Ctrl + L` | Abrir chat com Cursor |
+| `Ctrl + K` | Editar código selecionado |
+| `Ctrl + I` | Inserir código inline |
+| `Ctrl + /` | Comentar/descomentar |
+| `Ctrl + P` | Buscar arquivo |
+| `Ctrl + F` | Buscar no arquivo |
+
+---
+
+### 12.5 Exemplos Práticos
+
+#### Exemplo 1: Mudar Texto da Interface
+
+**Você quer:** Mudar o título de "HU Automation 2.0" para "Gerador de Histórias"
+
+**Jeito Manual:**
+1. Abrir `templates/index.html`
+2. Procurar o título (linha 150-200...)
+3. Modificar o texto
+4. Salvar
+5. Recarregar página
+
+**Com Cursor:**
+```
+Você: "Muda o título da página de 'HU Automation 2.0' 
+para 'Gerador de Histórias'"
+
+Cursor: [Faz tudo automaticamente]
+
+Você: Accept ✅
+
+Pronto! (5 segundos)
+```
+
+#### Exemplo 2: Adicionar Validação
+
+**Você quer:** Validar se o arquivo tem menos de 10MB antes de processar
+
+**Jeito Manual:**
+1. Ler documentação sobre validação de arquivos
+2. Escrever código JavaScript
+3. Testar
+4. Corrigir erros
+5. Testar de novo
+(1-2 horas)
+
+**Com Cursor:**
+```
+Você: "Adiciona uma validação que verifica se o arquivo 
+tem menos de 10MB antes de enviar. Se for maior, mostra 
+um alerta: 'Arquivo muito grande! Máximo 10MB'"
+
+Cursor:
+1. Adiciona código JavaScript
+2. Adiciona a validação
+3. Adiciona o alerta
+4. Testa (mentalmente)
+
+Você: Accept ✅
+
+Pronto! (30 segundos)
+```
+
+#### Exemplo 3: Criar Nova Página
+
+**Você quer:** Criar uma página de "Sobre" explicando o sistema
+
+**Jeito Manual:**
+1. Criar arquivo HTML
+2. Copiar estrutura de outra página
+3. Escrever conteúdo
+4. Linkar no menu
+5. Testar links
+(2-3 horas)
+
+**Com Cursor:**
+```
+Você: "Cria uma página 'Sobre' (/about) com:
+- Explicação do sistema
+- Como funciona
+- Contato
+E adiciona um link no menu principal"
+
+Cursor:
+1. Cria about.html
+2. Adiciona rota no app.py
+3. Escreve conteúdo
+4. Adiciona link no menu
+5. Tudo funciona!
+
+Você: Accept ✅
+
+Pronto! (2 minutos)
+```
+
+---
+
+### 12.6 Cursor vs Fazer Manual
+
+| Aspecto | Manual | Com Cursor |
+|---------|--------|------------|
+| **Tempo** | Horas | Minutos |
+| **Dificuldade** | Precisa aprender | Só pedir |
+| **Erros** | Você debug | Cursor ajuda |
+| **Documentação** | Ler muito | Perguntar |
+| **Testes** | Fazer na mão | Cursor sugere |
+
+**Conclusão:** Use Cursor para **TUDO**!
+
+---
+
+### 12.7 Dicas de Ouro
+
+#### 1. Seja Específico
+
+❌ **Ruim:** "Melhora o botão"
+✅ **Bom:** "Muda a cor do botão 'Processar' para verde #28a745 e aumenta o tamanho para 120px de largura"
+
+#### 2. Peça Explicações
+
+```
+Não entendeu algo? Pergunte!
+
+"Explica este código como se eu tivesse 10 anos"
+"O que faz esta função?"
+"Por que isso é necessário?"
+```
+
+#### 3. Peça Passo a Passo
+
+```
+"Lista os arquivos que preciso modificar para adicionar 
+um campo de prioridade"
+
+Cursor lista:
+1. templates/index.html (formulário)
+2. app.py (backend)
+3. models/__init__.py (banco de dados)
+```
+
+#### 4. Teste em Partes
+
+```
+Em vez de:
+"Faz tudo de uma vez" ❌
+
+Faça:
+"Primeiro adiciona o campo no HTML"
+[Testa]
+"Agora captura no backend"
+[Testa]
+"Agora salva no banco"
+[Testa] ✅
+```
+
+#### 5. Sempre Teste!
+
+Cursor é inteligente, mas não é perfeito.
+- Faça uma mudança
+- Teste se funciona
+- Se funcionar, vá para próxima
+- Se não, peça para Cursor corrigir
+
+---
+
+### 12.8 Cursor vs ChatGPT vs GitHub Copilot
+
+| Ferramenta | Melhor Para | Ponto Forte |
+|------------|-------------|-------------|
+| **Cursor** | Modificar código existente | Entende seu projeto todo |
+| **ChatGPT** | Explicações e tutoriais | Explicações detalhadas |
+| **GitHub Copilot** | Escrever código novo | Autocomplete inteligente |
+
+**Para este projeto: Use CURSOR!**
+- Ele "vê" todo o projeto
+- Entende o contexto
+- Modifica arquivos diretamente
+
+---
+
+### 12.9 Atividade Prática
+
+**Desafio:** Mude a cor do sistema para o tema da sua empresa
+
+**Com Cursor:**
+
+1. Abra o Cursor
+2. Pressione `Ctrl + L`
+3. Digite:
+
+```
+"Quero mudar as cores do sistema:
+- Cor principal: #6f42c1 (roxo)
+- Botões: #20c997 (verde água)
+- Links: #fd7e14 (laranja)
+
+Modifica todos os arquivos necessários mantendo a consistência"
+```
+
+4. Cursor vai:
+   - Encontrar todos os lugares com cores
+   - Modificar templates/index.html
+   - Modificar CSS inline
+   - Manter tudo consistente
+
+5. Você aceita as mudanças
+6. Recarrega a página
+7. **Voilà!** Tema novo! 🎨
+
+---
+
+### 12.10 Troubleshooting com Cursor
+
+**Problema:** Código não funciona após modificação
+
+**Solução:**
+```
+Você: "O código que você gerou não está funcionando. 
+O erro é: [cola o erro]"
+
+Cursor:
+1. Analisa o erro
+2. Identifica o problema
+3. Sugere correção
+4. Aplica a correção
+
+Testa novamente ✅
+```
+
+**Problema:** Não entendi o que Cursor fez
+
+**Solução:**
+```
+Você: "Explica linha por linha o que você acabou de fazer"
+
+Cursor:
+Linha 1: Isso cria uma variável que...
+Linha 2: Aqui valida se o usuário...
+Linha 3: Se tudo ok, então...
+```
+
+**Problema:** Quero voltar atrás
+
+**Solução:**
+```
+1. Pressione Ctrl + Z (desfazer)
+Ou
+2. Git: git checkout nome-do-arquivo
+```
+
+---
+
+### 12.11 Recursos Avançados
+
+#### Modo Composer (Modificar Múltiplos Arquivos)
+
+```
+Você: "Adiciona sistema de login com:
+- Página de login
+- Verificação no backend
+- Sessão do usuário
+- Logout"
+
+Cursor (modo composer):
+1. Cria templates/login.html
+2. Modifica app.py (rotas)
+3. Adiciona sessão Flask
+4. Cria logout
+5. Protege rotas existentes
+
+Tudo junto! ✅
+```
+
+#### Cursor Rules (Regras do Projeto)
+
+Você pode criar regras para Cursor seguir:
+
+**Arquivo:** `.cursorrules`
+```
+# Sempre use português nos comentários
+# Sempre adicione docstrings
+# Sempre trate erros com try/catch
+# Sempre retorne {"success": bool, "message": str}
+```
+
+Cursor vai seguir essas regras automaticamente!
+
+---
+
+### 12.12 Resumo: Manual vs Cursor
+
+**Manual:** 
+- ✅ Aprende profundamente
+- ❌ Demora muito
+- ❌ Precisa estudar
+- ❌ Mais erros
+
+**Cursor:**
+- ✅ Rápido
+- ✅ Fácil
+- ✅ Menos erros
+- ❌ Aprende menos (mas funciona!)
+
+**Recomendação:**
+1. **Use Cursor** para fazer as coisas funcionarem
+2. **Depois**, peça para Cursor explicar o que fez
+3. **Assim** você aprende E tem resultado! 🎯
+
+---
+
+### 12.13 Próximos Passos
+
+Agora que você sabe usar Cursor:
+
+1. ✅ Abra o projeto no Cursor
+2. ✅ Faça seu primeiro pedido simples
+3. ✅ Veja a mágica acontecer!
+4. ✅ Continue pedindo melhorias
+5. ✅ Personalize tudo do seu jeito!
+
+**Lembre-se:** Cursor é seu assistente. Quanto mais você usar, melhor ele fica!
+
+---
+
+## 13. Problemas Comuns e Soluções
 
 ### 11.1 "Python não é reconhecido"
 

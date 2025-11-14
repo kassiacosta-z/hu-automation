@@ -24,10 +24,10 @@ class Config:
     HOST: str = os.getenv('FLASK_HOST', '127.0.0.1')
     PORT: int = int(os.getenv('FLASK_PORT', '5000'))
     
-    # Configurações das LLMs
-    OPENAI_API_KEY: Optional[str] = os.getenv('OPENAI_API_KEY')
+    # Configurações da LLM (Zello MIND)
+    # OpenAI removida - sem tokens disponíveis
     ZELLO_API_KEY: Optional[str] = os.getenv('ZELLO_API_KEY')
-    ZELLO_BASE_URL: str = os.getenv('ZELLO_BASE_URL', 'https://api.zello.com')
+    ZELLO_BASE_URL: str = os.getenv('ZELLO_BASE_URL', 'https://smartdocs-api-hlg.zello.space')
     
     # Configurações de e-mail
     SMTP_SERVER: str = os.getenv('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
@@ -67,14 +67,16 @@ class Config:
         """
         errors = []
         
-        if not cls.OPENAI_API_KEY and not cls.ZELLO_API_KEY:
-            errors.append("Pelo menos uma chave de API (OPENAI_API_KEY ou ZELLO_API_KEY) deve ser definida")
+        # Apenas Zello MIND é suportada agora
+        if not cls.ZELLO_API_KEY:
+            errors.append("ZELLO_API_KEY deve ser definida")
         
-        if not cls.SMTP_USERNAME or not cls.SMTP_PASSWORD:
-            errors.append("Configurações de SMTP (SMTP_USERNAME e SMTP_PASSWORD) são obrigatórias")
+        # Email é opcional
+        if cls.SMTP_USERNAME and not cls.SMTP_PASSWORD:
+            errors.append("Se EMAIL_USERNAME estiver definido, EMAIL_PASSWORD também deve estar")
         
-        if not cls.EMAIL_FROM:
-            errors.append("EMAIL_FROM deve ser definido")
+        if cls.SMTP_USERNAME and not cls.EMAIL_FROM:
+            errors.append("Se EMAIL_USERNAME estiver definido, EMAIL_FROM também deve estar")
         
         return errors
 

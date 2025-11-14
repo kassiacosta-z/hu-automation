@@ -262,3 +262,4 @@ pip install -r requirements.txt
 
 *Última atualização: Novembro 2025*
 
+

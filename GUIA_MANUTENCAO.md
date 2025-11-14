@@ -966,3 +966,4 @@ Manter um sistema em produção requer:
 
 *Última atualização: Novembro 2025*
 
+
