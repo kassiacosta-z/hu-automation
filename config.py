@@ -39,7 +39,10 @@ class Config:
     # Configurações de upload
     MAX_CONTENT_LENGTH: int = int(os.getenv('MAX_CONTENT_LENGTH', '16777216'))  # 16MB
     UPLOAD_FOLDER: str = os.getenv('UPLOAD_FOLDER', 'uploads')
-    ALLOWED_EXTENSIONS: set = {'txt', 'pdf', 'doc', 'docx', 'md'}
+    ALLOWED_EXTENSIONS: set = {'txt', 'pdf', 'doc', 'docx', 'md', 'mp3', 'wav'}
+    
+    # Configurações do Whisper (transcrição de áudio)
+    WHISPER_MODEL: str = os.getenv('WHISPER_MODEL', 'base')  # Modelo Whisper: tiny, base, small, medium, large
 
     # Banco de dados (SQLite por padrão para desenvolvimento)
     DATABASE_URL: str = os.getenv('DATABASE_URL', 'sqlite:///app.db')

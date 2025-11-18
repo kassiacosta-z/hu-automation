@@ -45,6 +45,9 @@ env.bak/
 venv.bak/
 .venv/
 
+# VS Code workspace
+*.code-workspace
+
 # IDEs e editores
 .vscode/
 .idea/

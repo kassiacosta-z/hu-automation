@@ -393,6 +393,8 @@ Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário
         user_stories: str,
         attachment_path: str,
         attachment_filename: str = None,
+        summary: str = None,
+        subject: str = None,
         body_format: str = "html"
     ) -> Dict[str, Any]:
         """
@@ -403,6 +405,9 @@ Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário
             user_stories: Texto das Histórias de Usuário
             attachment_path: Caminho para o arquivo anexo
             attachment_filename: Nome do arquivo anexo (opcional)
+            summary: Resumo da reunião (opcional)
+            subject: Assunto do e-mail (opcional, será gerado se não fornecido)
+            body_format: Formato do corpo ('html' ou 'text')
             
         Returns:
             Dicionário com resultado do envio
@@ -431,13 +436,16 @@ Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário
                 'content_type': mime_type
             }
             
-            # Preparar corpo do e-mail
-            subject = "Histórias de Usuário - Documento Anexo"
+            # Preparar assunto do e-mail
+            if not subject:
+                subject = "Histórias de Usuário - Documento Anexo"
+            
+            # Preparar corpo do e-mail com explicações
             if body_format.lower() == "html":
-                body = self._format_user_stories_html(user_stories)
+                body = self._format_email_with_attachment_html(user_stories, summary, attachment_filename)
                 is_html = True
             else:
-                body = self._format_user_stories_text(user_stories)
+                body = self._format_email_with_attachment_text(user_stories, summary, attachment_filename)
                 is_html = False
             
             # Enviar e-mail com anexo
@@ -454,3 +462,159 @@ Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário
                 "success": False,
                 "error": f"Erro ao enviar e-mail com anexo: {str(e)}"
             }
+    
+    def _format_email_with_attachment_html(self, user_stories: str, summary: str = None, filename: str = None) -> str:
+        """
+        Formata corpo do e-mail em HTML com explicações quando há anexo.
+        
+        Args:
+            user_stories: Histórias de usuário
+            summary: Resumo da reunião (opcional)
+            filename: Nome do arquivo anexo (opcional)
+            
+        Returns:
+            HTML formatado
+        """
+        # Converter markdown para HTML
+        hus_html = self._markdown_to_html(user_stories) if user_stories else ""
+        summary_html = self._markdown_to_html(summary) if summary else ""
+        
+        file_info = f"<p><strong>Arquivo anexo:</strong> {filename or 'documento'}</p>" if filename else ""
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Histórias de Usuário</title>
+            <style>
+                body {{ 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    margin: 0; 
+                    padding: 20px; 
+                    background-color: #f8f9fa;
+                    color: #333;
+                }}
+                .container {{
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }}
+                .header {{ 
+                    background: linear-gradient(135deg, #FF6F00 0%, #cc5900 100%);
+                    color: white; 
+                    padding: 30px; 
+                    text-align: center;
+                }}
+                .header h1 {{
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 600;
+                }}
+                .header p {{
+                    margin: 10px 0 0 0;
+                    opacity: 0.9;
+                    font-size: 16px;
+                }}
+                .content {{ 
+                    padding: 30px; 
+                    line-height: 1.7;
+                }}
+                .info-box {{
+                    background-color: #e3f2fd;
+                    border-left: 4px solid #2196F3;
+                    padding: 20px;
+                    margin: 20px 0;
+                    border-radius: 0 8px 8px 0;
+                }}
+                .info-box h3 {{
+                    margin-top: 0;
+                    color: #1976D2;
+                }}
+                .content-section {{
+                    margin: 30px 0;
+                }}
+                .footer {{
+                    background-color: #f8f9fa;
+                    padding: 20px;
+                    text-align: center;
+                    color: #6c757d;
+                    font-size: 14px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>📋 Histórias de Usuário</h1>
+                    <p>Documento gerado automaticamente pelo sistema de automação</p>
+                </div>
+                <div class="content">
+                    <div class="info-box">
+                        <h3>📎 Documento Anexo</h3>
+                        <p>Este e-mail contém um documento anexo com as Histórias de Usuário e/ou Resumo da Reunião gerados automaticamente.</p>
+                        {file_info}
+                        <p><strong>Formato:</strong> O documento está disponível no formato solicitado e pode ser aberto em qualquer visualizador compatível.</p>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2>📝 Resumo do Conteúdo</h2>
+                        <p>O documento anexo contém as seguintes informações:</p>
+                        <ul>
+                            <li><strong>Histórias de Usuário:</strong> Documentação completa das funcionalidades identificadas</li>
+                            {f'<li><strong>Resumo da Reunião:</strong> Síntese dos principais pontos discutidos</li>' if summary else ''}
+                        </ul>
+                    </div>
+                    
+                    {f'<div class="content-section"><h2>📝 Histórias de Usuário</h2>{hus_html}</div>' if hus_html else ''}
+                    {f'<div class="content-section"><h2>📄 Resumo da Reunião</h2>{summary_html}</div>' if summary_html else ''}
+                </div>
+                <div class="footer">
+                    <p>Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário</p>
+                    <p>Para dúvidas ou sugestões, entre em contato com a equipe de desenvolvimento.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    
+    def _format_email_with_attachment_text(self, user_stories: str, summary: str = None, filename: str = None) -> str:
+        """
+        Formata corpo do e-mail em texto simples com explicações quando há anexo.
+        
+        Args:
+            user_stories: Histórias de usuário
+            summary: Resumo da reunião (opcional)
+            filename: Nome do arquivo anexo (opcional)
+            
+        Returns:
+            Texto formatado
+        """
+        hus_text = self._markdown_to_text(user_stories) if user_stories else ""
+        summary_text = self._markdown_to_text(summary) if summary else ""
+        
+        file_info = f"\nArquivo anexo: {filename or 'documento'}\n" if filename else ""
+        
+        return f"""
+HISTÓRIAS DE USUÁRIO - DOCUMENTO ANEXO
+========================================
+
+Este e-mail contém um documento anexo com as Histórias de Usuário e/ou Resumo da Reunião gerados automaticamente.
+{file_info}
+Formato: O documento está disponível no formato solicitado e pode ser aberto em qualquer visualizador compatível.
+
+RESUMO DO CONTEÚDO
+------------------
+O documento anexo contém as seguintes informações:
+- Histórias de Usuário: Documentação completa das funcionalidades identificadas
+{f'- Resumo da Reunião: Síntese dos principais pontos discutidos' if summary else ''}
+
+{f'HISTÓRIAS DE USUÁRIO\n{"=" * 40}\n{hus_text}\n' if hus_text else ''}
+{f'RESUMO DA REUNIÃO\n{"=" * 40}\n{summary_text}\n' if summary_text else ''}
+---
+Enviado automaticamente pelo Sistema de Automação de Histórias de Usuário
+Para dúvidas ou sugestões, entre em contato com a equipe de desenvolvimento.
+        """.strip()

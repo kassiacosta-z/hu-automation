@@ -288,6 +288,47 @@ class FileService:
                         "error": "Biblioteca python-docx não instalada para processar DOCX"
                     }
             
+            # Áudio - requer Whisper para transcrição
+            elif file_extension in ['mp3', 'wav']:
+                try:
+                    from services.transcription_service import TranscriptionService
+                    transcription_service = TranscriptionService()
+                    result = transcription_service.transcribe_audio(file_path)
+                    
+                    if result.get('success'):
+                        return {
+                            "success": True,
+                            "text": result.get('text', ''),
+                            "method": "audio_transcription",
+                            "transcription_info": {
+                                "language": result.get('language', 'pt'),
+                                "segments": result.get('segments', 0)
+                            }
+                        }
+                    else:
+                        return {
+                            "success": False,
+                            "error": result.get('error', 'Erro desconhecido na transcrição'),
+                            "method": "audio_transcription"
+                        }
+                except ImportError:
+                    return {
+                        "success": False,
+                        "error": "Biblioteca openai-whisper não está instalada. Execute: pip install openai-whisper torch"
+                    }
+                except Exception as e:
+                    error_msg = str(e)
+                    # Melhorar mensagens de erro específicas
+                    if "ffmpeg" in error_msg.lower() or "ffprobe" in error_msg.lower():
+                        return {
+                            "success": False,
+                            "error": "FFmpeg não encontrado no sistema. O Whisper requer FFmpeg instalado. Instale FFmpeg e adicione ao PATH do sistema. No Windows: winget install FFmpeg"
+                        }
+                    return {
+                        "success": False,
+                        "error": f"Erro ao transcrever áudio: {error_msg}"
+                    }
+            
             # DOC - requer biblioteca adicional
             elif file_extension == 'doc':
                 try:
@@ -352,46 +393,135 @@ class FileService:
                 "error": f"Erro ao extrair texto: {str(e)}"
             }
     
-    def create_document(self, content: str, format_type: str, filename: str = None) -> Dict[str, Any]:
+    def create_document(self, content: str, format_type: str, filename: str = None, user_stories: str = None, summary: str = None, document_title: str = None) -> Dict[str, Any]:
         """
         Cria um documento no formato especificado.
         
         Args:
-            content: Conteúdo do documento
+            content: Conteúdo completo do documento (ou será montado de user_stories e summary)
             format_type: Tipo do documento ('pdf' ou 'docx')
             filename: Nome do arquivo (opcional)
+            user_stories: Histórias de usuário (opcional, se fornecido será usado em vez de content)
+            summary: Resumo da reunião (opcional)
+            document_title: Título do documento (opcional, será determinado automaticamente se não fornecido)
             
         Returns:
             Dicionário com resultado da criação
         """
         try:
+            # Determinar título do documento baseado no conteúdo
+            if not document_title:
+                if user_stories and summary:
+                    # Tentar extrair título da primeira HU
+                    title_from_hus = self._extract_title_from_hus(user_stories)
+                    if title_from_hus:
+                        document_title = f"{title_from_hus} - Histórias de Usuário e Resumo"
+                    else:
+                        document_title = "Histórias de Usuário e Resumo da Reunião"
+                elif user_stories:
+                    # Tentar extrair título da primeira HU
+                    title_from_hus = self._extract_title_from_hus(user_stories)
+                    if title_from_hus:
+                        document_title = title_from_hus
+                    else:
+                        document_title = "Histórias de Usuário"
+                elif summary:
+                    document_title = "Resumo da Reunião"
+                else:
+                    document_title = "Documento Gerado"
+            
+            # Determinar nome do arquivo baseado no título
             if not filename:
                 timestamp = int(time.time())
-                filename = f"user_stories_{timestamp}"
+                # Criar nome de arquivo baseado no título
+                safe_title = "".join(c for c in document_title if c.isalnum() or c in (' ', '-', '_')).strip()
+                safe_title = safe_title.replace(' ', '_')[:50]  # Limitar tamanho
+                if not safe_title:
+                    safe_title = "documento"
+                filename = f"{safe_title}_{timestamp}"
+            
+            # Montar conteúdo se user_stories e summary foram fornecidos
+            if user_stories or summary:
+                content_parts = []
+                if user_stories:
+                    content_parts.append(user_stories)
+                if summary:
+                    if content_parts:
+                        content_parts.append("\n\n---\n\n")
+                    content_parts.append(f"# Resumo da Reunião\n\n{summary}")
+                content = "\n".join(content_parts)
             
             file_path = os.path.join(self.upload_folder, f"{filename}.{format_type}")
             
             if format_type.lower() == 'pdf':
                 try:
                     from reportlab.lib.pagesizes import letter
-                    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-                    from reportlab.lib.styles import getSampleStyleSheet
+                    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+                    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
                     from reportlab.lib.units import inch
+                    from reportlab.lib import colors
+                    import re
                     
-                    doc = SimpleDocTemplate(file_path, pagesize=letter)
+                    doc = SimpleDocTemplate(file_path, pagesize=letter, 
+                                           rightMargin=72, leftMargin=72,
+                                           topMargin=72, bottomMargin=72)
                     styles = getSampleStyleSheet()
                     story = []
                     
-                    # Título
-                    title = Paragraph("Histórias de Usuário", styles['Title'])
-                    story.append(title)
-                    story.append(Spacer(1, 12))
+                    # Estilos customizados
+                    title_style = ParagraphStyle(
+                        'CustomTitle',
+                        parent=styles['Title'],
+                        fontSize=24,
+                        textColor=colors.HexColor('#FF6F00'),
+                        spaceAfter=30,
+                        alignment=1  # Center
+                    )
                     
-                    # Conteúdo
-                    content_paragraphs = content.split('\n')
-                    for para in content_paragraphs:
-                        if para.strip():
-                            p = Paragraph(para.strip(), styles['Normal'])
+                    heading_style = ParagraphStyle(
+                        'CustomHeading',
+                        parent=styles['Heading1'],
+                        fontSize=18,
+                        textColor=colors.HexColor('#2D2D2D'),
+                        spaceAfter=12,
+                        spaceBefore=20
+                    )
+                    
+                    # Título principal (usar document_title)
+                    title = Paragraph(document_title, title_style)
+                    story.append(title)
+                    story.append(Spacer(1, 20))
+                    
+                    # Processar conteúdo com markdown básico
+                    lines = content.split('\n')
+                    for line in lines:
+                        line = line.strip()
+                        if not line:
+                            story.append(Spacer(1, 6))
+                            continue
+                        
+                        # Títulos
+                        if line.startswith('### '):
+                            text = line[4:].strip()
+                            p = Paragraph(f"<b>{text}</b>", styles['Heading3'])
+                            story.append(p)
+                            story.append(Spacer(1, 6))
+                        elif line.startswith('## '):
+                            text = line[3:].strip()
+                            p = Paragraph(text, heading_style)
+                            story.append(p)
+                            story.append(Spacer(1, 12))
+                        elif line.startswith('# '):
+                            text = line[2:].strip()
+                            p = Paragraph(text, heading_style)
+                            story.append(p)
+                            story.append(Spacer(1, 12))
+                        else:
+                            # Converter markdown básico para HTML
+                            text = line
+                            text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
+                            text = re.sub(r'\*(.+?)\*', r'<i>\1</i>', text)
+                            p = Paragraph(text, styles['Normal'])
                             story.append(p)
                             story.append(Spacer(1, 6))
                     
@@ -410,29 +540,63 @@ class FileService:
                         "error": "Biblioteca reportlab não instalada para criar PDFs"
                     }
             
-            elif format_type.lower() == 'docx':
+            elif format_type.lower() in ['docx', 'doc']:
                 try:
                     from docx import Document
-                    from docx.shared import Inches
+                    from docx.shared import Inches, Pt, RGBColor
+                    from docx.enum.text import WD_ALIGN_PARAGRAPH
+                    import re
                     
                     doc = Document()
                     
-                    # Título
-                    title = doc.add_heading('Histórias de Usuário', 0)
+                    # Título principal (usar document_title)
+                    title = doc.add_heading(document_title, 0)
+                    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    title_run = title.runs[0]
+                    title_run.font.color.rgb = RGBColor(255, 111, 0)
                     
-                    # Conteúdo
-                    content_paragraphs = content.split('\n')
-                    for para in content_paragraphs:
-                        if para.strip():
-                            doc.add_paragraph(para.strip())
+                    # Processar conteúdo
+                    lines = content.split('\n')
+                    for line in lines:
+                        line = line.strip()
+                        if not line:
+                            doc.add_paragraph()
+                            continue
+                        
+                        # Títulos
+                        if line.startswith('### '):
+                            text = line[4:].strip()
+                            p = doc.add_heading(text, level=3)
+                        elif line.startswith('## '):
+                            text = line[3:].strip()
+                            p = doc.add_heading(text, level=2)
+                        elif line.startswith('# '):
+                            text = line[2:].strip()
+                            p = doc.add_heading(text, level=1)
+                        else:
+                            # Processar markdown básico
+                            para = doc.add_paragraph()
+                            # Dividir por formatação markdown
+                            parts = re.split(r'(\*\*.*?\*\*|\*.*?\*)', line)
+                            for part in parts:
+                                if part.startswith('**') and part.endswith('**'):
+                                    run = para.add_run(part[2:-2])
+                                    run.bold = True
+                                elif part.startswith('*') and part.endswith('*') and not part.startswith('**'):
+                                    run = para.add_run(part[1:-1])
+                                    run.italic = True
+                                elif part:
+                                    para.add_run(part)
                     
-                    doc.save(file_path)
+                    # Salvar como .docx (mesmo se format_type for 'doc')
+                    file_path_docx = file_path.replace('.doc', '.docx') if format_type.lower() == 'doc' else file_path
+                    doc.save(file_path_docx)
                     
                     return {
                         "success": True,
-                        "file_path": file_path,
+                        "file_path": file_path_docx,
                         "filename": f"{filename}.docx",
-                        "size": os.path.getsize(file_path)
+                        "size": os.path.getsize(file_path_docx)
                     }
                     
                 except ImportError:
@@ -444,7 +608,7 @@ class FileService:
             else:
                 return {
                     "success": False,
-                    "error": f"Formato não suportado: {format_type}"
+                    "error": f"Formato não suportado: {format_type}. Use 'pdf' ou 'doc'"
                 }
                 
         except Exception as e:
@@ -452,3 +616,44 @@ class FileService:
                 "success": False,
                 "error": f"Erro ao criar documento: {str(e)}"
             }
+    
+    def _extract_title_from_hus(self, user_stories: str) -> Optional[str]:
+        """
+        Extrai o título da primeira História de Usuário.
+        
+        Args:
+            user_stories: Texto das Histórias de Usuário
+            
+        Returns:
+            Título extraído ou None se não encontrado
+        """
+        try:
+            lines = user_stories.split('\n')
+            for i, line in enumerate(lines):
+                line = line.strip()
+                # Procurar por padrão "## 1. **Nome da História de Usuário**" seguido do nome
+                if line.startswith('## 1.') and 'Nome da História de Usuário' in line:
+                    # Próxima linha não vazia geralmente contém o nome
+                    for j in range(i + 1, min(i + 5, len(lines))):
+                        next_line = lines[j].strip()
+                        if next_line and not next_line.startswith('#'):
+                            # Remover formatação markdown
+                            title = next_line.replace('**', '').replace('*', '').strip()
+                            if title and len(title) > 5:  # Título válido
+                                return title
+                # Alternativa: procurar por linha que começa com "# História de Usuário"
+                elif line.startswith('# ') and 'História de Usuário' in line:
+                    # Extrair o nome após "História de Usuário"
+                    parts = line.split(':', 1)
+                    if len(parts) > 1:
+                        title = parts[1].strip()
+                        if title:
+                            return title
+                    # Ou usar a linha completa sem o "# "
+                    title = line[2:].strip()
+                    if title and len(title) > 5:
+                        return title
+            return None
+        except Exception as e:
+            print(f"[DEBUG] Erro ao extrair título das HUs: {str(e)}")
+            return None

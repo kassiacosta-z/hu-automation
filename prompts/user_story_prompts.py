@@ -375,6 +375,93 @@ Forneça:
         """.strip()
     
     @staticmethod
+    def generate_meeting_summary(transcription: str) -> str:
+        """
+        Gera prompt para criar resumo de reunião a partir de transcrição.
+        
+        Args:
+            transcription: Texto da transcrição da reunião
+            
+        Returns:
+            Prompt formatado
+        """
+        return f"""
+# CONTEXTO E OBJETIVO DO AGENTE
+Você é um **especialista em análise de reuniões e documentação executiva**, com ampla experiência em síntese de informações, identificação de decisões estratégicas e organização de ações.
+
+Sua missão é **criar um resumo executivo completo e estruturado** da transcrição de reunião fornecida, destacando informações acionáveis, decisões tomadas e próximos passos.
+
+---
+
+# TRANSCRIÇÃO DA REUNIÃO:
+
+{transcription}
+
+---
+
+# FORMATO OBRIGATÓRIO PARA O RESUMO
+
+## 1. **Resumo Executivo**
+- Breve visão geral da reunião (2-3 parágrafos)
+- Objetivo principal da reunião
+- Duração e participantes principais
+
+## 2. **Pontos Principais Discutidos**
+- Lista numerada dos tópicos mais importantes abordados
+- Contexto de cada ponto
+- Destaque para questões críticas ou urgentes
+
+## 3. **Decisões Tomadas**
+- Lista clara de todas as decisões tomadas durante a reunião
+- Responsáveis por cada decisão (se mencionado)
+- Prazos ou marcos associados (se mencionado)
+
+## 4. **Ações Pendentes**
+- Lista de ações identificadas que precisam ser executadas
+- Responsável por cada ação (se mencionado)
+- Prazo ou data limite (se mencionado)
+- Prioridade (Alta/Média/Baixa - inferir se não mencionado)
+
+## 5. **Participantes Relevantes**
+- Lista dos participantes que tiveram participação ativa
+- Papel ou função de cada um (se identificável)
+- Principais contribuições de cada participante
+
+## 6. **Próximos Passos**
+- Resumo das próximas ações planejadas
+- Próxima reunião ou follow-up (se mencionado)
+- Marcos ou entregas esperadas
+
+## 7. **Observações Adicionais**
+- Informações relevantes que não se encaixam nas categorias acima
+- Riscos ou preocupações levantadas
+- Oportunidades identificadas
+- Dependências ou bloqueadores mencionados
+
+---
+
+# DIRETRIZES PARA O RESUMO
+
+1. **Concisão e Clareza**: Seja objetivo, mas completo. Evite redundâncias.
+2. **Foco em Ações**: Destaque informações acionáveis e decisões tomadas.
+3. **Organização**: Use formatação clara (listas, seções) para facilitar leitura.
+4. **Precisão**: Mantenha fidelidade ao conteúdo da transcrição. Não invente informações.
+5. **Priorização**: Destaque informações mais importantes primeiro.
+6. **Linguagem Profissional**: Use linguagem formal e clara, adequada para documentação executiva.
+7. **Estruturação**: Organize o resumo de forma lógica e fácil de navegar.
+
+---
+
+# SAÍDA ESPERADA
+
+Forneça um resumo completo seguindo rigorosamente o formato acima, garantindo que todas as seções sejam preenchidas com informações relevantes extraídas da transcrição.
+
+Se alguma seção não tiver informações na transcrição, indique claramente: "Nenhuma informação disponível nesta seção."
+
+Agora, analise a transcrição fornecida e gere o resumo executivo completo.
+        """.strip()
+    
+    @staticmethod
     def get_prompt_templates() -> Dict[str, str]:
         """
         Retorna todos os templates de prompt disponíveis.
@@ -387,5 +474,6 @@ Forneça:
             "analyze_existing": "Analisar Histórias de Usuário existentes",
             "refine_story": "Refinar uma História de Usuário específica",
             "generate_acceptance_criteria": "Gerar critérios de aceitação",
-            "estimate_effort": "Estimar esforço de desenvolvimento"
+            "estimate_effort": "Estimar esforço de desenvolvimento",
+            "generate_meeting_summary": "Gerar resumo executivo de reunião"
         }

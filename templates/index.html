@@ -132,17 +132,25 @@
         }
 
         .input-group input,
-        .input-group select {
+        .input-group select,
+        .input-group textarea {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid var(--stroke);
             border-radius: 8px;
             font-size: 1rem;
             transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .input-group input:focus,
-        .input-group select:focus {
+        .input-group select:focus,
+        .input-group textarea:focus {
             outline: none;
             border-color: var(--brand);
             box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.1);
@@ -270,18 +278,25 @@
                 <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📄</div>
                     <p><strong>Clique para selecionar ou arraste um arquivo aqui</strong></p>
-                    <p style="color: var(--muted); margin-top: 8px;">Formatos aceitos: TXT, PDF, DOC, DOCX, MD</p>
+                    <p style="color: var(--muted); margin-top: 8px;">Formatos aceitos: TXT, PDF, DOC, DOCX, MD, MP3, WAV</p>
                 </div>
 
-                <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx,.md" style="display: none;" onchange="handleFileSelect(event)">
+                <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx,.md,.mp3,.wav" style="display: none;" onchange="handleFileSelect(event)">
 
                 <div id="fileInfo" class="file-info"></div>
 
                 <div class="input-group">
-                    <label for="providerSelect">Modelo de IA</label>
-                    <select id="providerSelect">
-                        <option value="zello">Zello MIND</option>
+                    <label for="outputTypeSelect">Tipo de Saída</label>
+                    <select id="outputTypeSelect">
+                        <option value="hus">Histórias de Usuário</option>
+                        <option value="summary">Resumo da Reunião</option>
+                        <option value="both">Ambos (HUs + Resumo)</option>
                     </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="observationsInput">Observações Adicionais (opcional)</label>
+                    <textarea id="observationsInput" rows="3" placeholder="Adicione comentários, contexto ou instruções especiais para a geração..."></textarea>
                 </div>
 
                 <div class="input-group">
@@ -290,11 +305,10 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="formatSelect">Formato do E-mail</label>
+                    <label for="formatSelect">Formato do Arquivo</label>
                     <select id="formatSelect">
-                        <option value="preview">Apenas Preview (Não enviar)</option>
-                        <option value="html">HTML</option>
-                        <option value="text">Texto Simples</option>
+                        <option value="pdf">PDF</option>
+                        <option value="doc">DOC</option>
                     </select>
                 </div>
 
@@ -316,10 +330,123 @@
                 <!-- Mensagens Persistentes -->
                 <div id="messageContainer" class="message-container"></div>
 
+                <!-- Área de Revisão de Transcrição (apenas para áudio) -->
+                <div id="transcriptionReviewArea" class="card" style="display: none; margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px;">🎤 Revisar Transcrição</h3>
+                    <p style="color: var(--muted); margin-bottom: 16px;">Revise e edite a transcrição antes de gerar HUs/Resumo:</p>
+                    <textarea id="transcriptionText" rows="10" style="width: 100%; padding: 12px; border: 1px solid var(--stroke); border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9rem;"></textarea>
+                    
+                    <div class="input-group" style="margin-top: 16px;">
+                        <label for="transcriptionOutputType">Tipo de Saída</label>
+                        <select id="transcriptionOutputType">
+                            <option value="hus">Histórias de Usuário</option>
+                            <option value="summary">Resumo da Reunião</option>
+                            <option value="both">Ambos (HUs + Resumo)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="transcriptionObservations">Observações Adicionais (opcional)</label>
+                        <textarea id="transcriptionObservations" rows="3" placeholder="Adicione comentários, contexto ou instruções especiais..."></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn-process" onclick="confirmTranscription()" style="flex: 1;">
+                            ✅ Confirmar e Gerar
+                        </button>
+                        <button onclick="cancelTranscriptionReview()" style="flex: 1; background: var(--gray-100); color: var(--gray-900); border: 1px solid var(--stroke); padding: 16px 32px; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer;">
+                            ❌ Cancelar
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Área de Resultado -->
                 <div id="resultArea" class="result-area" style="display: none;">
                     <h3 style="margin-bottom: 16px;">📋 Resultado do Processamento</h3>
                     <div id="resultText" class="result-text"></div>
+                    
+                    <!-- Área de HUs -->
+                    <div id="husResult" style="display: none; margin-top: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="margin: 0;">📝 Histórias de Usuário</h4>
+                            <button onclick="copyToClipboard('husText')" style="background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                📋 Copiar
+                            </button>
+                        </div>
+                        <div id="husText" class="result-text" style="background: var(--card); padding: 16px; border-radius: 8px; border: 1px solid var(--stroke); white-space: pre-wrap; word-wrap: break-word;"></div>
+                    </div>
+                    
+                    <!-- Área de Resumo -->
+                    <div id="summaryResult" style="display: none; margin-top: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="margin: 0;">📄 Resumo da Reunião</h4>
+                            <button onclick="copyToClipboard('summaryText')" style="background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                📋 Copiar
+                            </button>
+                        </div>
+                        <div id="summaryText" class="result-text" style="background: var(--card); padding: 16px; border-radius: 8px; border: 1px solid var(--stroke); white-space: pre-wrap; word-wrap: break-word;"></div>
+                    </div>
+                    
+                    <!-- Botões de Confirmação e Regeneração -->
+                    <div id="confirmationButtons" style="display: none; margin-top: 24px;">
+                        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                            <button class="btn-process" onclick="confirmResults()" style="flex: 1;">
+                                ✅ Confirmar - Resultado está correto
+                            </button>
+                            <button id="regenerateHusBtn" onclick="showRegenerateModal('hus')" style="flex: 1; background: var(--gray-100); color: var(--gray-900); border: 1px solid var(--stroke); padding: 16px 32px; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: none;">
+                                🔄 Regenerar HUs
+                            </button>
+                            <button id="regenerateSummaryBtn" onclick="showRegenerateModal('summary')" style="flex: 1; background: var(--gray-100); color: var(--gray-900); border: 1px solid var(--stroke); padding: 16px 32px; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: none;">
+                                🔄 Regenerar Resumo
+                            </button>
+                        </div>
+                        <!-- Seção de Ações com Documento -->
+                        <div id="documentActionsSection" style="display: none; margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--stroke);">
+                            <p style="color: var(--muted); margin-bottom: 12px; font-size: 0.9rem;">
+                                <strong>Formato selecionado:</strong> <span id="formatPreview"></span>
+                            </p>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn-process" onclick="downloadDocument()" style="flex: 1; min-width: 200px; background: #4CAF50; border-color: #4CAF50;">
+                                    📥 Baixar Documento
+                                </button>
+                                <div id="emailActionsContainer" style="display: none; flex: 1; min-width: 200px;">
+                                    <p style="color: var(--muted); margin-bottom: 8px; font-size: 0.85rem;">
+                                        📧 <strong>E-mail:</strong> <span id="emailPreview"></span>
+                                    </p>
+                                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                                        <button class="btn-process" onclick="sendEmailWithAttachment()" style="width: 100%; background: #2196F3; border-color: #2196F3;">
+                                            📧 Enviar por E-mail (Anexo)
+                                        </button>
+                                        <button class="btn-process" onclick="downloadAndSendEmail()" style="width: 100%; background: #FF9800; border-color: #FF9800;">
+                                            📥📧 Baixar e Enviar
+                                        </button>
+                                        <button onclick="changeEmail()" style="width: 100%; background: var(--gray-100); color: var(--gray-900); border: 1px solid var(--stroke); padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+                                            ✏️ Alterar E-mail
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal de Regeneração -->
+                <div id="regenerateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; flex-direction: column;">
+                    <div class="card" style="max-width: 600px; margin: 20px;">
+                        <h3 id="regenerateModalTitle" style="margin-bottom: 16px;">🔄 Regenerar</h3>
+                        <div class="input-group">
+                            <label for="regenerateObservations">Observações Adicionais (opcional)</label>
+                            <textarea id="regenerateObservations" rows="4" placeholder="Adicione novas observações ou deixe vazio para regenerar sem alterações..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="btn-process" onclick="confirmRegenerate()" style="flex: 1;">
+                                🔄 Regenerar
+                            </button>
+                            <button onclick="closeRegenerateModal()" style="flex: 1; background: var(--gray-100); color: var(--gray-900); border: 1px solid var(--stroke); padding: 16px 32px; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer;">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -327,6 +454,8 @@
 
     <script>
         let selectedFile = null;
+        let currentOriginalText = null;
+        let currentResults = {};
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
@@ -350,7 +479,11 @@
         function clearFile() {
             document.getElementById('fileInput').value = '';
             document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('transcriptionReviewArea').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'none';
             selectedFile = null;
+            currentOriginalText = null;
+            currentResults = {};
         }
 
         function showProgress(show, percent = 0) {
@@ -379,26 +512,46 @@
         }
 
         async function processDocument() {
+            console.log('[DEBUG] ========== INICIANDO PROCESSAMENTO ==========');
+            
             if (!selectedFile) {
+                console.error('[DEBUG] ❌ Nenhum arquivo selecionado');
                 showMessage('❌ Por favor, selecione um arquivo primeiro', 'error');
                 return;
             }
 
+            const outputType = document.getElementById('outputTypeSelect').value;
+            const observations = document.getElementById('observationsInput').value.trim();
+            const emailValue = document.getElementById('emailInput').value.trim();
+            
+            console.log('[DEBUG] Arquivo:', selectedFile.name, 'Tamanho:', selectedFile.size);
+            console.log('[DEBUG] Tipo de saída selecionado:', outputType);
+            console.log('[DEBUG] outputType === "summary"?', outputType === 'summary');
+            console.log('[DEBUG] outputType === "hus"?', outputType === 'hus');
+            console.log('[DEBUG] outputType === "both"?', outputType === 'both');
+            console.log('[DEBUG] Observações:', observations || '(nenhuma)');
+            console.log('[DEBUG] Email:', emailValue || '(não preenchido)');
+
             const formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('provider', document.getElementById('providerSelect').value);
-            formData.append('email', document.getElementById('emailInput').value);
-            formData.append('output_format', document.getElementById('formatSelect').value);
+            // Provider sempre será 'zello' (definido no backend)
+            // Sempre usar preview primeiro - email será enviado após confirmação
+            formData.append('output_format', 'preview');
+            formData.append('output_type', outputType);
+            formData.append('observations', observations);
+            // Guardar email para envio posterior
+            formData.append('email', emailValue);
 
             // Reset UI
             hideMessage();
             showProgress(true, 10);
             document.getElementById('resultArea').style.display = 'none';
+            document.getElementById('transcriptionReviewArea').style.display = 'none';
 
             try {
                 // Simular progresso
                 const progressInterval = setInterval(() => {
-                    const current = parseInt(document.getElementById('progressFill').style.width);
+                    const current = parseInt(document.getElementById('progressFill').style.width) || 10;
                     if (current < 90) {
                         showProgress(true, current + 10);
                     }
@@ -418,14 +571,38 @@
                     showProgress(false);
 
                     if (data.success) {
-                        showMessage('✅ Documento processado com sucesso! ' + (data.email_sent ? '📧 E-mail enviado!' : ''), 'success');
+                        console.log('[DEBUG] ========== RESPOSTA DA API ==========');
+                        console.log('[DEBUG] data.user_stories presente?', !!data.user_stories);
+                        console.log('[DEBUG] data.summary presente?', !!data.summary);
+                        console.log('[DEBUG] Tamanho HUs:', data.user_stories ? data.user_stories.length : 0);
+                        console.log('[DEBUG] Tamanho Resumo:', data.summary ? data.summary.length : 0);
                         
-                        // Exibir resultado
-                        if (data.user_stories) {
-                            document.getElementById('resultText').textContent = data.user_stories;
-                            document.getElementById('resultArea').style.display = 'block';
+                        // Se for áudio, mostrar área de revisão
+                        if (data.requires_review && data.transcription) {
+                            currentOriginalText = data.transcription;
+                            console.log('[DEBUG] Texto original (áudio) armazenado:', currentOriginalText.substring(0, 100) + '...');
+                            document.getElementById('transcriptionText').value = data.transcription;
+                            document.getElementById('transcriptionReviewArea').style.display = 'block';
+                            showMessage('✅ Transcrição concluída! Revise e confirme para gerar.', 'success');
+                        } else {
+                            // Para documentos, armazenar o texto extraído
+                            if (data.original_text) {
+                                currentOriginalText = data.original_text;
+                                console.log('[DEBUG] ✅ Texto original (documento) armazenado. Tamanho:', currentOriginalText.length, 'caracteres');
+                                console.log('[DEBUG] Primeiros 200 caracteres:', currentOriginalText.substring(0, 200));
+                            } else if (data.extraction_info && data.extraction_info.text) {
+                                currentOriginalText = data.extraction_info.text;
+                                console.log('[DEBUG] ✅ Texto original (via extraction_info) armazenado. Tamanho:', currentOriginalText.length, 'caracteres');
+                            } else {
+                                console.error('[DEBUG] ❌ Texto original não encontrado na resposta!');
+                                console.error('[DEBUG] Dados recebidos:', Object.keys(data));
+                                console.error('[DEBUG] extraction_info:', data.extraction_info);
+                            }
+                            // Processar resultados
+                            displayResults(data);
                         }
                     } else {
+                        console.error('[DEBUG] Erro no processamento:', data.error);
                         showMessage('❌ Erro: ' + (data.error || 'Erro desconhecido'), 'error');
                     }
                 }, 500);
@@ -434,6 +611,544 @@
                 showMessage('❌ Erro ao processar: ' + error.message, 'error');
                 console.error('Erro:', error);
             }
+        }
+
+        async function confirmTranscription() {
+            console.log('[DEBUG] ========== CONFIRMANDO TRANSCRIÇÃO ==========');
+            const transcriptionText = document.getElementById('transcriptionText').value.trim();
+            const outputType = document.getElementById('transcriptionOutputType').value;
+            const observations = document.getElementById('transcriptionObservations').value.trim();
+            
+            console.log('[DEBUG] Tamanho da transcrição:', transcriptionText.length);
+            console.log('[DEBUG] Tipo de saída:', outputType);
+            console.log('[DEBUG] Observações:', observations || '(nenhuma)');
+
+            if (!transcriptionText) {
+                showMessage('❌ Por favor, forneça a transcrição', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('transcription_text', transcriptionText);
+            formData.append('output_type', outputType);
+            formData.append('observations', observations);
+
+            hideMessage();
+            showProgress(true, 10);
+            document.getElementById('transcriptionReviewArea').style.display = 'none';
+
+            try {
+                const progressInterval = setInterval(() => {
+                    const current = parseInt(document.getElementById('progressFill').style.width) || 10;
+                    if (current < 90) {
+                        showProgress(true, current + 10);
+                    }
+                }, 500);
+
+                const response = await fetch('/api/process-transcription', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                showProgress(true, 100);
+
+                const data = await response.json();
+
+                console.log('[DEBUG] ========== RESPOSTA DA API (TRANSCRIÇÃO) ==========');
+                console.log('[DEBUG] data.user_stories presente?', !!data.user_stories);
+                console.log('[DEBUG] data.summary presente?', !!data.summary);
+                console.log('[DEBUG] Tamanho HUs:', data.user_stories ? data.user_stories.length : 0);
+                console.log('[DEBUG] Tamanho Resumo:', data.summary ? data.summary.length : 0);
+
+                setTimeout(() => {
+                    showProgress(false);
+                    if (data.success) {
+                        // Armazenar texto original para regeneração
+                        if (data.original_text) {
+                            currentOriginalText = data.original_text;
+                        } else {
+                            currentOriginalText = transcriptionText; // Fallback
+                        }
+                        console.log('[DEBUG] ✅ Texto original (transcrição confirmada) armazenado. Tamanho:', currentOriginalText.length);
+                        displayResults(data);
+                    } else {
+                        console.error('[DEBUG] ❌ Erro no processamento da transcrição:', data.error);
+                        showMessage('❌ Erro: ' + (data.error || 'Erro desconhecido'), 'error');
+                    }
+                }, 500);
+            } catch (error) {
+                showProgress(false);
+                showMessage('❌ Erro ao processar: ' + error.message, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        function cancelTranscriptionReview() {
+            document.getElementById('transcriptionReviewArea').style.display = 'none';
+            clearFile();
+        }
+
+        function displayResults(data) {
+            currentResults = data;
+            
+            // Limpar resultados anteriores
+            document.getElementById('husResult').style.display = 'none';
+            document.getElementById('summaryResult').style.display = 'none';
+            document.getElementById('regenerateHusBtn').style.display = 'none';
+            document.getElementById('regenerateSummaryBtn').style.display = 'none';
+            document.getElementById('documentActionsSection').style.display = 'none';
+            document.getElementById('emailActionsContainer').style.display = 'none';
+            
+            // Exibir HUs se disponível
+            if (data.user_stories) {
+                document.getElementById('husText').textContent = data.user_stories;
+                document.getElementById('husResult').style.display = 'block';
+                document.getElementById('regenerateHusBtn').style.display = 'block';
+            }
+            
+            // Exibir resumo se disponível
+            if (data.summary) {
+                document.getElementById('summaryText').textContent = data.summary;
+                document.getElementById('summaryResult').style.display = 'block';
+                document.getElementById('regenerateSummaryBtn').style.display = 'block';
+            }
+            
+            // Mostrar seção de ações com documento
+            const fileFormat = document.getElementById('formatSelect').value.toUpperCase();
+            document.getElementById('formatPreview').textContent = fileFormat;
+            document.getElementById('documentActionsSection').style.display = 'block';
+            
+            // Verificar se há email preenchido para mostrar opções de email
+            const emailValue = document.getElementById('emailInput').value.trim();
+            if (emailValue) {
+                document.getElementById('emailPreview').textContent = emailValue;
+                document.getElementById('emailActionsContainer').style.display = 'block';
+            }
+            
+            // Mostrar área de resultado e botões de confirmação
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('confirmationButtons').style.display = 'block';
+            
+            showMessage('✅ Processamento concluído com sucesso! Revise o resultado e escolha uma ação.', 'success');
+        }
+
+        function confirmResults() {
+            showMessage('✅ Resultado confirmado! Processo finalizado.', 'success');
+            setTimeout(() => {
+                clearFile();
+                hideMessage();
+            }, 2000);
+        }
+
+        async function sendByEmail() {
+            const emailValue = document.getElementById('emailInput').value.trim();
+            const emailFormat = document.getElementById('formatSelect').value;
+            
+            if (!emailValue) {
+                showMessage('❌ Por favor, preencha o e-mail antes de enviar', 'error');
+                return;
+            }
+            
+            if (!currentResults.user_stories && !currentResults.summary) {
+                showMessage('❌ Nenhum conteúdo disponível para enviar', 'error');
+                return;
+            }
+            
+            // Mostrar progresso
+            showProgress(true, 0);
+            showMessage('📧 Enviando e-mail...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', emailValue);
+                formData.append('email_format', emailFormat);
+                
+                if (currentResults.user_stories) {
+                    formData.append('user_stories', currentResults.user_stories);
+                }
+                if (currentResults.summary) {
+                    formData.append('summary', currentResults.summary);
+                }
+                
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showProgress(false);
+                    showMessage('✅ E-mail enviado com sucesso!', 'success');
+                    // Ocultar seção de email após envio
+                    setTimeout(() => {
+                        document.getElementById('emailSendSection').style.display = 'none';
+                    }, 3000);
+                } else {
+                    showProgress(false);
+                    showMessage('❌ Erro ao enviar e-mail: ' + (data.error || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                showProgress(false);
+                showMessage('❌ Erro ao enviar e-mail: ' + error.message, 'error');
+            }
+        }
+
+        function changeEmail() {
+            // Focar no campo de email para edição
+            document.getElementById('emailInput').focus();
+            document.getElementById('emailInput').select();
+            showMessage('✏️ Edite o e-mail e escolha uma ação novamente', 'info');
+        }
+
+        async function downloadDocument() {
+            if (!currentResults.user_stories && !currentResults.summary) {
+                showMessage('❌ Nenhum conteúdo disponível para baixar', 'error');
+                return;
+            }
+            
+            const fileFormat = document.getElementById('formatSelect').value;
+            
+            showProgress(true, 0);
+            showMessage('📥 Gerando documento...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file_format', fileFormat);
+                
+                if (currentResults.user_stories) {
+                    formData.append('user_stories', currentResults.user_stories);
+                }
+                if (currentResults.summary) {
+                    formData.append('summary', currentResults.summary);
+                }
+                
+                const response = await fetch('/api/download-document', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = `historias_usuario.${fileFormat}`;
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showProgress(false);
+                    showMessage('✅ Documento baixado com sucesso!', 'success');
+                } else {
+                    const data = await response.json();
+                    showProgress(false);
+                    showMessage('❌ Erro ao gerar documento: ' + (data.error || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                showProgress(false);
+                showMessage('❌ Erro ao baixar documento: ' + error.message, 'error');
+            }
+        }
+
+        async function sendEmailWithAttachment() {
+            const emailValue = document.getElementById('emailInput').value.trim();
+            const fileFormat = document.getElementById('formatSelect').value;
+            
+            if (!emailValue) {
+                showMessage('❌ Por favor, preencha o e-mail antes de enviar', 'error');
+                return;
+            }
+            
+            if (!currentResults.user_stories && !currentResults.summary) {
+                showMessage('❌ Nenhum conteúdo disponível para enviar', 'error');
+                return;
+            }
+            
+            showProgress(true, 0);
+            showMessage('📧 Gerando documento e enviando e-mail...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', emailValue);
+                formData.append('file_format', fileFormat);
+                
+                if (currentResults.user_stories) {
+                    formData.append('user_stories', currentResults.user_stories);
+                }
+                if (currentResults.summary) {
+                    formData.append('summary', currentResults.summary);
+                }
+                
+                const response = await fetch('/api/send-email-with-attachment', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showProgress(false);
+                    showMessage('✅ E-mail enviado com sucesso!', 'success');
+                } else {
+                    showProgress(false);
+                    showMessage('❌ Erro ao enviar e-mail: ' + (data.error || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                showProgress(false);
+                showMessage('❌ Erro ao enviar e-mail: ' + error.message, 'error');
+            }
+        }
+
+        async function downloadAndSendEmail() {
+            const emailValue = document.getElementById('emailInput').value.trim();
+            const fileFormat = document.getElementById('formatSelect').value;
+            
+            if (!emailValue) {
+                showMessage('❌ Por favor, preencha o e-mail antes de enviar', 'error');
+                return;
+            }
+            
+            if (!currentResults.user_stories && !currentResults.summary) {
+                showMessage('❌ Nenhum conteúdo disponível', 'error');
+                return;
+            }
+            
+            showProgress(true, 0);
+            showMessage('📥📧 Gerando documento, baixando e enviando e-mail...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', emailValue);
+                formData.append('file_format', fileFormat);
+                
+                if (currentResults.user_stories) {
+                    formData.append('user_stories', currentResults.user_stories);
+                }
+                if (currentResults.summary) {
+                    formData.append('summary', currentResults.summary);
+                }
+                
+                const response = await fetch('/api/download-and-send', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Primeiro, baixar o arquivo
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = `historias_usuario.${fileFormat}`;
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Verificar se o email foi enviado (pode estar no header ou precisar de outra chamada)
+                    showProgress(false);
+                    showMessage('✅ Documento baixado e e-mail enviado com sucesso!', 'success');
+                } else {
+                    const data = await response.json();
+                    showProgress(false);
+                    showMessage('❌ Erro: ' + (data.error || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                showProgress(false);
+                showMessage('❌ Erro: ' + error.message, 'error');
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent || element.innerText;
+            
+            if (!text || text.trim() === '') {
+                showMessage('❌ Nenhum conteúdo para copiar', 'error');
+                return;
+            }
+            
+            // Usar a API moderna de clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('✅ Conteúdo copiado para a área de transferência!', 'success');
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    // Fallback para método antigo
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                // Fallback para navegadores antigos
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showMessage('✅ Conteúdo copiado para a área de transferência!', 'success');
+                } else {
+                    showMessage('❌ Erro ao copiar. Tente selecionar e copiar manualmente.', 'error');
+                }
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                showMessage('❌ Erro ao copiar. Tente selecionar e copiar manualmente.', 'error');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        let currentRegenerateType = null;
+
+        function showRegenerateModal(type) {
+            currentRegenerateType = type;
+            const modal = document.getElementById('regenerateModal');
+            const title = document.getElementById('regenerateModalTitle');
+            
+            if (type === 'hus') {
+                title.textContent = '🔄 Regenerar Histórias de Usuário';
+            } else {
+                title.textContent = '🔄 Regenerar Resumo';
+            }
+            
+            document.getElementById('regenerateObservations').value = '';
+            modal.style.display = 'flex';
+        }
+
+        function closeRegenerateModal() {
+            document.getElementById('regenerateModal').style.display = 'none';
+            currentRegenerateType = null;
+        }
+
+        async function confirmRegenerate() {
+            console.log('[DEBUG] ========== INICIANDO REGENERAÇÃO ==========');
+            console.log('[DEBUG] Tipo de regeneração:', currentRegenerateType);
+            console.log('[DEBUG] currentOriginalText disponível:', !!currentOriginalText);
+            console.log('[DEBUG] Tamanho do texto original:', currentOriginalText ? currentOriginalText.length : 0);
+            
+            if (!currentRegenerateType) {
+                console.error('[DEBUG] ❌ Tipo de regeneração não definido!');
+                showMessage('❌ Erro: tipo de regeneração não definido', 'error');
+                return;
+            }
+            
+            if (!currentOriginalText) {
+                console.error('[DEBUG] ❌ Texto original não disponível!');
+                console.error('[DEBUG] currentResults:', currentResults);
+                showMessage('❌ Erro: dados não disponíveis para regeneração. O texto original não foi armazenado.', 'error');
+                return;
+            }
+
+            const observations = document.getElementById('regenerateObservations').value.trim();
+            console.log('[DEBUG] Observações fornecidas:', observations || '(nenhuma)');
+            console.log('[DEBUG] Tamanho das observações:', observations.length);
+            
+            const formData = new FormData();
+            formData.append('original_text', currentOriginalText);
+            formData.append('observations', observations);
+
+            if (currentRegenerateType === 'hus') {
+                formData.append('current_hus', currentResults.user_stories || '');
+                console.log('[DEBUG] HUs atuais disponíveis:', !!currentResults.user_stories);
+            } else {
+                formData.append('current_summary', currentResults.summary || '');
+                console.log('[DEBUG] Resumo atual disponível:', !!currentResults.summary);
+            }
+
+            hideMessage();
+            showProgress(true, 10);
+            closeRegenerateModal();
+
+            try {
+                const progressInterval = setInterval(() => {
+                    const current = parseInt(document.getElementById('progressFill').style.width) || 10;
+                    if (current < 90) {
+                        showProgress(true, current + 10);
+                    }
+                }, 500);
+
+                const endpoint = currentRegenerateType === 'hus' ? '/api/regenerate-hus' : '/api/regenerate-summary';
+                console.log('[DEBUG] Endpoint:', endpoint);
+                console.log('[DEBUG] Enviando requisição...');
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                showProgress(true, 100);
+
+                console.log('[DEBUG] Status da resposta:', response.status);
+                const data = await response.json();
+                console.log('[DEBUG] Resposta recebida:', {
+                    success: data.success,
+                    has_user_stories: !!data.user_stories,
+                    has_summary: !!data.summary,
+                    error: data.error
+                });
+
+                setTimeout(() => {
+                    showProgress(false);
+                    if (data.success) {
+                        console.log('[DEBUG] ✅ Regeneração bem-sucedida!');
+                        // Atualizar resultados
+                        if (currentRegenerateType === 'hus' && data.user_stories) {
+                            currentResults.user_stories = data.user_stories;
+                            document.getElementById('husText').textContent = data.user_stories;
+                            console.log('[DEBUG] HUs atualizadas. Tamanho:', data.user_stories.length);
+                        } else if (currentRegenerateType === 'summary' && data.summary) {
+                            currentResults.summary = data.summary;
+                            document.getElementById('summaryText').textContent = data.summary;
+                            console.log('[DEBUG] Resumo atualizado. Tamanho:', data.summary.length);
+                        }
+                        showMessage('✅ ' + (data.message || 'Regeneração concluída com sucesso!'), 'success');
+                    } else {
+                        console.error('[DEBUG] ❌ Erro na regeneração:', data.error);
+                        console.error('[DEBUG] Detalhes completos:', data);
+                        showMessage('❌ Erro: ' + (data.error || 'Erro desconhecido'), 'error');
+                    }
+                }, 500);
+            } catch (error) {
+                showProgress(false);
+                console.error('[DEBUG] ❌ Exceção ao regenerar:', error);
+                console.error('[DEBUG] Stack trace:', error.stack);
+                showMessage('❌ Erro ao regenerar: ' + error.message, 'error');
+            }
+            console.log('[DEBUG] ========== FIM DA REGENERAÇÃO ==========');
         }
     </script>
 </body>

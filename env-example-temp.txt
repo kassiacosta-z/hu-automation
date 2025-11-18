@@ -1,1 +1,0 @@
-﻿# HU Automation 2.0 - .env.example

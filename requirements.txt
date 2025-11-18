@@ -7,7 +7,7 @@ Werkzeug>=3.0.0
 Jinja2>=3.1.0
 
 # LLMs
-openai>=1.35.0
+# Nota: openai não é mais usado para LLM, apenas como dependência do Whisper
 requests>=2.31.0
 
 # Email
@@ -17,6 +17,13 @@ email-validator>=2.1.0
 PyPDF2>=3.0.0
 python-docx>=1.1.0
 reportlab>=4.0.0
+
+# Processamento de áudio (Whisper)
+# Nota: openai é dependência do openai-whisper (não é usado para API LLM)
+openai>=1.35.0
+openai-whisper>=20231117
+torch>=2.0.0
+ffmpeg-python>=0.2.0
 
 # Database
 SQLAlchemy>=2.0.0
