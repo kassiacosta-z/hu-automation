@@ -70,9 +70,9 @@ FLASK_HOST=127.0.0.1
 FLASK_PORT=5000
 FLASK_DEBUG=True
 
-# Zello MIND API (JÁ VEM CONFIGURADA!)
-ZELLO_API_KEY=LYIB_WidIVeADAXylsTDcx-6oaWoq5CfPL9W_-bZ5Ag=
-ZELLO_BASE_URL=https://smartdocs-api-hlg.zello.space
+# Zello MIND API (Pedir dados a Desenvolvedora)
+ZELLO_API_KEY=XXXXXXXX
+ZELLO_BASE_URL=XXXXXXXX
 
 # Email (SMTP) - Opcional
 EMAIL_SMTP_SERVER=smtp.gmail.com
